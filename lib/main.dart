@@ -15,7 +15,7 @@ class UkOrUsWord extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'UK or US Word?',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -137,10 +137,12 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                  gameState.finished
-                      ? 'Game Over'
-                      : 'The term is:\n${gameState.word!.word}',
-                  style: Theme.of(context).textTheme.headlineLarge)
+                gameState.finished
+                    ? 'Game Over'
+                    : 'The term is:\n`${gameState.word!.word}`',
+                style: Theme.of(context).textTheme.headlineLarge,
+                textAlign: TextAlign.center,
+              )
             ],
           ));
 
