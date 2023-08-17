@@ -76,18 +76,15 @@ class _MyHomePageState extends State<MyHomePage> {
     _words = words;
   }
 
-  void _updateScore(bool guessed) {
+  void _increaseScore() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      if (guessed) {
-        _scoreCounter++;
-      } else {
-        _scoreCounter = 0;
-      }
+      _scoreCounter++;
+    });
+  }
+
+  void _resetScore() {
+    setState(() {
+      _scoreCounter = 0;
     });
   }
 
@@ -96,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
 
-    Word word = _words.random();
+    GameState gameState = getWord(_words);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -106,59 +103,113 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'The term is:\n${word.word}',
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    )
-                  ],
-                )),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                    margin: const EdgeInsets.all(16),
-                    child: buildMaterialButton(word, Locale.UK)),
-                Container(
-                    margin: const EdgeInsets.all(16),
-                    child: buildMaterialButton(word, Locale.US))
-              ],
-            ),
-            Container(
-                margin: const EdgeInsets.only(top: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Your score is: $_scoreCounter',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    )
-                  ],
-                ))
+            buildTitleRow(gameState, context),
+            buildButtonsRow(gameState, _words),
+            buildScoreRow(context)
           ],
         ),
       ),
     );
   }
 
-  MaterialButton buildMaterialButton(Word word, Locale locale) {
-    var color = locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent;
-    return MaterialButton(
-      height: 80,
-      color: color,
-      onPressed: () {
-        checkGuess(word, locale);
-      },
-      child: Text(locale.name),
-    );
+  Container buildTitleRow(GameState gameState, BuildContext context) =>
+      Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                  gameState.finished
+                      ? 'Game Over'
+                      : 'The term is:\n${gameState.word!.word}',
+                  style: Theme.of(context).textTheme.headlineLarge)
+            ],
+          ));
+
+  Row buildButtonsRow(GameState gameState, List<Word> allwords) {
+    const insets = 16.0;
+    if (gameState.finished) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Container(
+              margin: const EdgeInsets.all(insets),
+              child: buildMaterialOffButton(Locale.UK)),
+          MaterialButton(
+            height: 80,
+            color: Colors.grey,
+            onPressed: () {
+              for (var word in allwords) {
+                word.seen = false;
+              }
+              _resetScore();
+            },
+            child: const Text("Restart?"),
+          ),
+          Container(
+              margin: const EdgeInsets.all(insets),
+              child: buildMaterialOffButton(Locale.US))
+        ],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Container(
+              margin: const EdgeInsets.all(insets),
+              child: buildMaterialButton(gameState.word!, Locale.UK)),
+          Container(
+              margin: const EdgeInsets.all(insets),
+              child: buildMaterialButton(gameState.word!, Locale.US))
+        ],
+      );
+    }
   }
 
+  Container buildScoreRow(BuildContext context) => Container(
+      margin: const EdgeInsets.only(top: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Your score is: $_scoreCounter',
+            style: Theme.of(context).textTheme.headlineSmall,
+          )
+        ],
+      ));
+
+  MaterialButton buildMaterialButton(Word word, Locale locale) =>
+      MaterialButton(
+        height: 80,
+        color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
+        onPressed: () {
+          checkGuess(word, locale);
+        },
+        child: Text(locale.name),
+      );
+
+  MaterialButton buildMaterialOffButton(Locale locale) => MaterialButton(
+        height: 80,
+        color: Colors.grey,
+        onPressed: () {},
+        child: Text(locale.name),
+      );
+
   void checkGuess(Word word, Locale locale) {
-    _updateScore(word.locale == locale);
+    if (word.locale == locale) {
+      _increaseScore();
+    } else {
+      _resetScore();
+    }
+  }
+}
+
+GameState getWord(List<Word> words) {
+  Word? word = words.random();
+  if (word == null) {
+    return GameState(word: null, finished: true);
+  } else {
+    return GameState(word: word, finished: false);
   }
 }
 
@@ -172,13 +223,23 @@ final class Word {
   Word({required this.word, required this.locale});
 }
 
-extension WordListRandomPick on List<Word> {
-  Word random() {
-    if (isNotEmpty) {
-      int index = Random().nextInt(length);
-      return this[index];
+final class GameState {
+  Word? word;
+  bool finished = false;
+
+  GameState({required this.word, required this.finished});
+}
+
+extension UnseenWordRandomPick on List<Word> {
+  Word? random() {
+    var unseenWords = where((element) => !element.seen).toList();
+    if (unseenWords.isNotEmpty) {
+      int index = Random().nextInt(unseenWords.length);
+      var word = unseenWords[index];
+      firstWhere((element) => element == word).seen = true;
+      return word;
     } else {
-      return Word(word: "Error", locale: Locale.UK);
+      return null;
     }
   }
 }
