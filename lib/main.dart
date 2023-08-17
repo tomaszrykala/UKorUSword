@@ -1,25 +1,19 @@
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:csv/csv.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const UkOrUsWord());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class UkOrUsWord extends StatelessWidget {
+  const UkOrUsWord({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final testWords = [
-      Word(word: "pavement", locale: Locale.UK),
-      Word(word: "sidewalk", locale: Locale.US),
-      Word(word: "'ground' <- beef", locale: Locale.US),
-      Word(word: "turkey -> 'mince'", locale: Locale.UK),
-    ];
-
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -41,16 +35,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: MyHomePage(
-        title: 'Flutter Demo Home Page',
-        words: testWords,
-      ),
+      home: const MyHomePage(title: 'UK or US Word?'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.words});
+  const MyHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -62,18 +53,17 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
-  final List<Word> words;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState(words);
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   int _scoreCounter = 0;
-  List<Word> _words = [];
+  final List<Word> _words = [];
 
-  _MyHomePageState(List<Word> words) {
-    _words = words;
+  _MyHomePageState() {
+    _loadCSV();
   }
 
   void _increaseScore() {
@@ -86,6 +76,34 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _scoreCounter = 0;
     });
+  }
+
+  void _loadCSV() async {
+    List<Word> allWords = await getAllWords();
+    setState(() {
+      _words.addAll(allWords);
+    });
+  }
+
+  Future<List<Word>> getAllWords() async {
+    final rawData = await rootBundle.loadString("assets/words.csv");
+    List<List<dynamic>> csvData =
+        const CsvToListConverter(eol: ";", allowInvalid: false)
+            .convert(rawData);
+    return mapAllWords(csvData);
+  }
+
+  List<Word> mapAllWords(List<List<dynamic>> csvData) {
+    List<Word> allWords = [];
+    for (var wordData in csvData) {
+      if (wordData.length == 2) {
+        var localeData = wordData[1];
+        var locale = Locale.UK.name == localeData ? Locale.UK : Locale.US;
+        var word = wordData[0].toString().replaceAll("\n", "");
+        allWords.add(Word(word: word, locale: locale));
+      }
+    }
+    return allWords;
   }
 
   @override
@@ -126,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ));
 
-  Row buildButtonsRow(GameState gameState, List<Word> allwords) {
+  Row buildButtonsRow(GameState gameState, List<Word> allWords) {
     const insets = 16.0;
     if (gameState.finished) {
       return Row(
@@ -139,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
             height: 80,
             color: Colors.grey,
             onPressed: () {
-              for (var word in allwords) {
+              for (var word in allWords) {
                 word.seen = false;
               }
               _resetScore();
@@ -213,6 +231,7 @@ GameState getWord(List<Word> words) {
   }
 }
 
+// ignore: constant_identifier_names
 enum Locale { US, UK }
 
 final class Word {
