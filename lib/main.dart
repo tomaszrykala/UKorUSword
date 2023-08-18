@@ -10,7 +10,6 @@ void main() {
 class UkOrUsWord extends StatelessWidget {
   const UkOrUsWord({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,6 +34,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _scoreCounter = 0;
+  int _wordsCountdown = 10;
   final List<Word> _words = [];
 
   _MyHomePageState() {
@@ -44,12 +44,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void _increaseScore() {
     setState(() {
       _scoreCounter++;
+      _wordsCountdown--;
     });
   }
 
   void _resetScore() {
     setState(() {
       _scoreCounter = 0;
+      _wordsCountdown = 10;
     });
   }
 
@@ -65,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
 
-    GameState gameState = getWord(_words);
+    GameState gameState = getWord(_words, _wordsCountdown);
 
     return Scaffold(
       appBar: AppBar(
@@ -78,7 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             buildTitleRow(gameState, context),
             buildButtonsRow(gameState, _words),
-            buildScoreRow(context)
+            buildScoreRow(context),
+            buildCountDownRow(context),
           ],
         ),
       ),
@@ -101,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ));
 
-  Row buildButtonsRow(GameState gameState, List<Word> allWords) {
+  Row buildButtonsRow(GameState gameState, List<Word> words) {
     const insets = 16.0;
     if (gameState.finished) {
       return Row(
@@ -114,10 +117,9 @@ class _MyHomePageState extends State<MyHomePage> {
             height: 80,
             color: Colors.grey,
             onPressed: () {
-              for (var word in allWords) {
-                word.seen = false;
-              }
-              _resetScore();
+              restartGame(words, () {
+                _resetScore();
+              });
             },
             child: const Text("Restart?"),
           ),
@@ -132,10 +134,10 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(gameState.word!, Locale.UK)),
+              child: buildMaterialButton(gameState.word!, words, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(gameState.word!, Locale.US))
+              child: buildMaterialButton(gameState.word!, words, Locale.US))
         ],
       );
     }
@@ -153,13 +155,26 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ));
 
-  MaterialButton buildMaterialButton(Word word, Locale locale) =>
+  Container buildCountDownRow(BuildContext context) => Container(
+      margin: const EdgeInsets.only(top: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Remaining words: $_wordsCountdown',
+            style: Theme.of(context).textTheme.headlineSmall,
+          )
+        ],
+      ));
+
+  MaterialButton buildMaterialButton(
+          Word word, List<Word> words, Locale locale) =>
       MaterialButton(
         height: 80,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
           // checkGuess(word, locale);
-          checkGuess(word, locale, () {
+          checkGuess(word, words, locale, () {
             _increaseScore();
           }, () {
             _resetScore();

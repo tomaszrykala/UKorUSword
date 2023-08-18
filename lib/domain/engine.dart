@@ -3,21 +3,38 @@ import 'dart:math';
 import '../repo/words_repo.dart';
 import '../data/data.dart';
 
-void checkGuess(
-    Word word, Locale locale, Null Function() onGuess, Null Function() onFail) {
+void checkGuess(Word word, List<Word> words, Locale locale,
+    Null Function() onGuess, Null Function() onFail) {
   if (word.locale == locale) {
     onGuess();
   } else {
+    resetWords(words);
     onFail();
   }
 }
 
-GameState getWord(List<Word> words) {
-  Word? word = words.random();
-  if (word == null) {
+GameState getWord(List<Word> words, int wordsCountdown) {
+  if (wordsCountdown == 0) {
+    resetWords(words);
     return GameState(word: null, finished: true);
   } else {
-    return GameState(word: word, finished: false);
+    Word? word = words.random();
+    if (word == null) {
+      return GameState(word: null, finished: true);
+    } else {
+      return GameState(word: word, finished: false);
+    }
+  }
+}
+
+void restartGame(List<Word> words, Null Function() onRestart) {
+  resetWords(words);
+  onRestart();
+}
+
+void resetWords(List<Word> words) {
+  for (var word in words) {
+    word.seen = false;
   }
 }
 
