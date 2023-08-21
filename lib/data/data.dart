@@ -9,17 +9,14 @@ final class Word {
 }
 
 final class GameState {
-  Word? currentWord;
-  int currentScore;
+  Word? word;
+  int score;
   bool isFinished;
   List<Word> remainingWords;
-  int wordCountDown = 0;
 
   GameState(
-      {required this.currentWord,
+      {required this.word,
+      required this.score,
       required this.isFinished,
-      required this.currentScore,
-      required this.remainingWords}) {
-    wordCountDown = remainingWords.length;
-  }
+      required this.remainingWords}) {}
 }

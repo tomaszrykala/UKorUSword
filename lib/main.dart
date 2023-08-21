@@ -92,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(
                 gameState.isFinished
                     ? 'Game Over'
-                    : 'The term is:\n`${gameState.currentWord!.word}`',
+                    : 'The term is:\n`${gameState.word!.word}`',
                 style: Theme.of(context).textTheme.headlineLarge,
                 textAlign: TextAlign.center,
               )
@@ -129,10 +129,10 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(gameState.currentWord!, Locale.UK)),
+              child: buildMaterialButton(gameState.word!, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(gameState.currentWord!, Locale.US))
+              child: buildMaterialButton(gameState.word!, Locale.US))
         ],
       );
     }
@@ -145,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Your score is: ${gameState.currentScore}',
+                'Your score is: ${gameState.score}',
                 style: Theme.of(context).textTheme.headlineSmall,
               )
             ],
@@ -158,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Remaining words: ${gameState.wordCountDown}',
+                'Remaining words: ${gameState.remainingWords.length}',
                 style: Theme.of(context).textTheme.headlineSmall,
               )
             ],
