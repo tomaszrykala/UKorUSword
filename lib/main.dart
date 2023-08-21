@@ -113,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.grey,
             onPressed: () {
               setState(() {
-                _gameController!.onRestartGame();
+                _gameController!.getRestartGameState();
               });
             },
             child: const Text("Restart?"),

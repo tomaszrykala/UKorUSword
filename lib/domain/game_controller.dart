@@ -5,25 +5,15 @@ import 'game_state_factory.dart';
 
 class GameController {
   final List<Word> _allWords = [];
-  GameState _gameState = initGameState();
+  GameState _gameState = initGameState(); // observe..
 
   GameController({required words}) {
     _allWords.addAll(words);
-    _createGameWords();
+    _createStartGameState();
   }
 
-  void _createGameWords() {
-    List<Word> gameWords = [];
-    List<int> unseenWordsIndices = [];
-    for (int i = 0; unseenWordsIndices.length < 11; i++) {
-      int currentWordIndex = Random().nextInt(_allWords.length);
-      if (!unseenWordsIndices.contains(currentWordIndex)) {
-        var unseenWord = _allWords[currentWordIndex];
-        gameWords.add(unseenWord);
-        unseenWordsIndices.add(currentWordIndex);
-      }
-    }
-    _gameState = startNewGameState(gameWords);
+  void _createStartGameState() {
+    _gameState = startNewGameState(_getNewGameWords());
   }
 
   GameState checkGuess(Word word, Locale locale) {
@@ -35,28 +25,19 @@ class GameController {
   GameState getGameState() {
     if (_gameState.remainingWords.isEmpty) {
       if (!_gameState.isFinished) {
-        _setNewGameState();
+        setNextWordGameState(0);
       } else {
         _resetGameState();
       }
     } else {
-      _setNextWordGameState();
+      setNextWordGameState(_gameState.score);
     }
     return _gameState;
   }
 
-  GameState onRestartGame() {
-    _createGameWords();
-    _setNewGameState();
+  GameState getRestartGameState() {
+    _createStartGameState();
     return _gameState;
-  }
-
-  void _setNewGameState() {
-    setNextWordGameState(0);
-  }
-
-  void _setNextWordGameState() {
-    setNextWordGameState(_gameState.score);
   }
 
   void _resetGameState() {
@@ -64,9 +45,23 @@ class GameController {
   }
 
   void setNextWordGameState(int newScore) {
-    var remainingWords = _gameState.remainingWords; // TODO CSQ 10 -> 9?
-    int index = Random().nextInt(remainingWords.length);
-    Word word = remainingWords.removeAt(index);
-    _gameState = nextWordGameState(word, newScore, remainingWords);
+    int index = Random().nextInt(_gameState.remainingWords.length);
+    Word word = _gameState.remainingWords.removeAt(index);
+    _gameState = nextWordGameState(word, newScore, _gameState.remainingWords);
+  }
+
+  List<Word> _getNewGameWords() {
+    List<Word> gameWords = [];
+    List<int> unseenWordsIndices = [];
+    for (int i = 0; unseenWordsIndices.length <= 10; i++) {
+      // adds 11 words..
+      int currentWordIndex = Random().nextInt(_allWords.length);
+      if (!unseenWordsIndices.contains(currentWordIndex)) {
+        var unseenWord = _allWords[currentWordIndex];
+        gameWords.add(unseenWord);
+        unseenWordsIndices.add(currentWordIndex);
+      }
+    }
+    return gameWords;
   }
 }
