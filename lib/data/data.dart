@@ -2,21 +2,23 @@
 enum Locale { US, UK }
 
 final class Word {
-  String word;
-  Locale locale;
+  final String word;
+  final Locale locale;
 
   Word({required this.word, required this.locale});
 }
 
 final class GameState {
-  Word? word;
-  int score;
-  bool isFinished;
-  List<Word> remainingWords;
+  final Word? word;
+  final int score;
+  final bool isFinished; // TODO remove
+  final List<Word> remainingWords;
+  final bool finishedLastWord;
 
   GameState(
       {required this.word,
       required this.score,
       required this.isFinished,
-      required this.remainingWords}) {}
+      required this.remainingWords})
+      : finishedLastWord = remainingWords.isEmpty && word == null;
 }

@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
         buildTitleRow(gameState, context),
         buildButtonsRow(gameState),
         buildScoreRow(gameState, context),
-        buildCountDownRow(gameState, context),
+        if (!gameState.finishedLastWord) buildCountDownRow(gameState, context),
       ],
     );
   }
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                gameState.isFinished
+                gameState.finishedLastWord
                     ? 'Game Over'
                     : 'The term is:\n`${gameState.word!.word}`',
                 style: Theme.of(context).textTheme.headlineLarge,
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Row buildButtonsRow(GameState gameState) {
     const insets = 16.0;
-    if (gameState.isFinished) {
+    if (gameState.finishedLastWord) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -151,18 +151,23 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ));
 
-  Container buildCountDownRow(GameState gameState, BuildContext context) =>
-      Container(
-          margin: const EdgeInsets.only(top: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'Remaining words: ${gameState.remainingWords.length}',
-                style: Theme.of(context).textTheme.headlineSmall,
-              )
-            ],
-          ));
+  Container buildCountDownRow(GameState gameState, BuildContext context) {
+    var remaining = gameState.remainingWords;
+    var text = remaining.isEmpty
+        ? 'Last word!'
+        : 'Remaining words: ${remaining.length}.';
+    return Container(
+        margin: const EdgeInsets.only(top: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              text,
+              style: Theme.of(context).textTheme.headlineSmall,
+            )
+          ],
+        ));
+  }
 
   MaterialButton buildMaterialButton(Word word, Locale locale) =>
       MaterialButton(
