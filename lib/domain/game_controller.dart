@@ -12,30 +12,9 @@ class GameController {
     _createStartGameState();
   }
 
-  void _createStartGameState() {
-    _gameState = startNewGameState(_getNewGameWords());
-  }
-
-  GameState checkGuess(Word word, Locale locale) {
-    var newScore = word.locale == locale ? _gameState.score + 1 : 0;
-    _gameState = checkWordGameState(word, newScore, _gameState.remainingWords);
-    return _gameState;
-  }
-
-  void _setNextWordGameState(int newScore) {
-    var remainingWords = _gameState.remainingWords;
-    if (remainingWords.isEmpty) {
-      _gameState = finishedGameState(newScore);
-    } else {
-      int index = Random().nextInt(remainingWords.length);
-      Word word = remainingWords.removeAt(index);
-      _gameState = checkWordGameState(word, newScore, remainingWords);
-    }
-  }
-
   GameState getGameState() {
-    if (_gameState.finishedLastWord) {
-      if (!_gameState.isFinished) {
+    if (_gameState.finishedAllWords) {
+      if (_gameState.hasNextWords) {
         _setNextWordGameState(0);
       } else {
         _resetGameState();
@@ -49,6 +28,27 @@ class GameController {
   GameState getRestartGameState() {
     _createStartGameState();
     return _gameState;
+  }
+
+  GameState checkGuess(Word word, Locale locale) {
+    var newScore = word.locale == locale ? _gameState.score + 1 : 0;
+    _gameState = checkWordGameState(word, newScore, _gameState.remainingWords);
+    return _gameState;
+  }
+
+  void _setNextWordGameState(int newScore) {
+    if (_gameState.hasNextWords) {
+      var remainingWords = _gameState.remainingWords;
+      int index = Random().nextInt(remainingWords.length);
+      Word word = remainingWords.removeAt(index);
+      _gameState = checkWordGameState(word, newScore, remainingWords);
+    } else {
+      _gameState = finishedGameState(newScore);
+    }
+  }
+
+  void _createStartGameState() {
+    _gameState = startNewGameState(_getNewGameWords());
   }
 
   void _resetGameState() {

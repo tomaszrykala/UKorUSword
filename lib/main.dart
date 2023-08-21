@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
         buildTitleRow(gameState, context),
         buildButtonsRow(gameState),
         buildScoreRow(gameState, context),
-        if (!gameState.finishedLastWord) buildCountDownRow(gameState, context),
+        if (!gameState.finishedAllWords) buildCountDownRow(gameState, context),
       ],
     );
   }
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                gameState.finishedLastWord
+                gameState.finishedAllWords
                     ? 'Game Over'
                     : 'The term is:\n`${gameState.word!.word}`',
                 style: Theme.of(context).textTheme.headlineLarge,
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Row buildButtonsRow(GameState gameState) {
     const insets = 16.0;
-    if (gameState.finishedLastWord) {
+    if (gameState.finishedAllWords) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[

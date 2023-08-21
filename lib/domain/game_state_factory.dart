@@ -1,17 +1,13 @@
 import '../data/data.dart';
 
 GameState initGameState() =>
-    GameState(word: null, score: 0, isFinished: false, remainingWords: []);
+    GameState(word: null, score: 0, remainingWords: []);
 
-GameState startNewGameState(List<Word> remaining) => GameState(
-    word: null, score: 0, isFinished: false, remainingWords: remaining);
+GameState startNewGameState(List<Word> remaining) =>
+    GameState(word: null, score: 0, remainingWords: remaining);
 
 GameState checkWordGameState(Word word, int newScore, List<Word> remaining) =>
-    GameState(
-        word: word,
-        score: newScore,
-        isFinished: remaining.isEmpty,
-        remainingWords: remaining);
+    GameState(word: word, score: newScore, remainingWords: remaining);
 
-GameState finishedGameState(int finalScore) => GameState(
-    word: null, score: finalScore, isFinished: true, remainingWords: []);
+GameState finishedGameState(int finalScore) =>
+    GameState(word: null, score: finalScore, remainingWords: []);

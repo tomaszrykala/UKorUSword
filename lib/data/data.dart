@@ -11,14 +11,12 @@ final class Word {
 final class GameState {
   final Word? word;
   final int score;
-  final bool isFinished; // TODO remove
   final List<Word> remainingWords;
-  final bool finishedLastWord;
+  final bool finishedAllWords;
+  final bool hasNextWords;
 
   GameState(
-      {required this.word,
-      required this.score,
-      required this.isFinished,
-      required this.remainingWords})
-      : finishedLastWord = remainingWords.isEmpty && word == null;
+      {required this.word, required this.score, required this.remainingWords})
+      : finishedAllWords = remainingWords.isEmpty && word == null,
+        hasNextWords = remainingWords.isNotEmpty;
 }
