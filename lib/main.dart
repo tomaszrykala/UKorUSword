@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../repo/words_repo.dart';
-import 'domain/engine.dart';
+import 'domain/game_controller.dart';
 import 'data/data.dart';
 
 void main() {
@@ -49,8 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
     if (_gameController != null) {
       GameState gameState = _gameController!.getGameState();
       return Scaffold(
