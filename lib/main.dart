@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../repo/words_repo.dart';
 import 'domain/engine.dart';
 import 'data/data.dart';
 
@@ -33,32 +34,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _scoreCounter = 0;
-  int _wordsCountdown = 10;
-  final List<Word> _words = [];
+  GameController? _gameController;
 
   _MyHomePageState() {
     _loadCSV();
   }
 
-  void _increaseScore() {
-    setState(() {
-      _scoreCounter++;
-      _wordsCountdown--;
-    });
-  }
-
-  void _resetScore() {
-    setState(() {
-      _scoreCounter = 0;
-      _wordsCountdown = 10;
-    });
-  }
-
   void _loadCSV() async {
-    List<Word> allWords = await getAllWords();
+    List<Word> allWords = await fetchAllWords();
     setState(() {
-      _words.addAll(allWords);
+      _gameController = GameController(words: allWords);
     });
   }
 
@@ -66,25 +51,37 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
-
-    GameState gameState = getWord(_words, _wordsCountdown);
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            buildTitleRow(gameState, context),
-            buildButtonsRow(gameState, _words),
-            buildScoreRow(context),
-            buildCountDownRow(context),
-          ],
+    if (_gameController != null) {
+      GameState gameState = _gameController!.getGameState();
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
         ),
-      ),
+        body: Center(
+          child: buildContentColumn(gameState, context),
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+        ),
+        body: const Center(), // TODO CSQ .. loading
+      );
+    }
+  }
+
+  Column buildContentColumn(GameState gameState, BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        buildTitleRow(gameState, context),
+        buildButtonsRow(gameState),
+        buildScoreRow(gameState, context),
+        buildCountDownRow(gameState, context),
+      ],
     );
   }
 
@@ -95,18 +92,18 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                gameState.finished
+                gameState.isFinished
                     ? 'Game Over'
-                    : 'The term is:\n`${gameState.word!.word}`',
+                    : 'The term is:\n`${gameState.currentWord!.word}`',
                 style: Theme.of(context).textTheme.headlineLarge,
                 textAlign: TextAlign.center,
               )
             ],
           ));
 
-  Row buildButtonsRow(GameState gameState, List<Word> words) {
+  Row buildButtonsRow(GameState gameState) {
     const insets = 16.0;
-    if (gameState.finished) {
+    if (gameState.isFinished) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -117,8 +114,8 @@ class _MyHomePageState extends State<MyHomePage> {
             height: 80,
             color: Colors.grey,
             onPressed: () {
-              restartGame(words, () {
-                _resetScore();
+              setState(() {
+                _gameController!.onRestartGame();
               });
             },
             child: const Text("Restart?"),
@@ -134,50 +131,48 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(gameState.word!, words, Locale.UK)),
+              child: buildMaterialButton(gameState.currentWord!, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(gameState.word!, words, Locale.US))
+              child: buildMaterialButton(gameState.currentWord!, Locale.US))
         ],
       );
     }
   }
 
-  Container buildScoreRow(BuildContext context) => Container(
-      margin: const EdgeInsets.only(top: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Your score is: $_scoreCounter',
-            style: Theme.of(context).textTheme.headlineSmall,
-          )
-        ],
-      ));
+  Container buildScoreRow(GameState gameState, BuildContext context) =>
+      Container(
+          margin: const EdgeInsets.only(top: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Your score is: ${gameState.currentScore}',
+                style: Theme.of(context).textTheme.headlineSmall,
+              )
+            ],
+          ));
 
-  Container buildCountDownRow(BuildContext context) => Container(
-      margin: const EdgeInsets.only(top: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Remaining words: $_wordsCountdown',
-            style: Theme.of(context).textTheme.headlineSmall,
-          )
-        ],
-      ));
+  Container buildCountDownRow(GameState gameState, BuildContext context) =>
+      Container(
+          margin: const EdgeInsets.only(top: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Remaining words: ${gameState.wordCountDown}',
+                style: Theme.of(context).textTheme.headlineSmall,
+              )
+            ],
+          ));
 
-  MaterialButton buildMaterialButton(
-          Word word, List<Word> words, Locale locale) =>
+  MaterialButton buildMaterialButton(Word word, Locale locale) =>
       MaterialButton(
         height: 80,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
-          // checkGuess(word, locale);
-          checkGuess(word, words, locale, () {
-            _increaseScore();
-          }, () {
-            _resetScore();
+          setState(() {
+            _gameController!.checkGuess(word, locale);
           });
         },
         child: Text(locale.name),

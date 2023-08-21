@@ -1,55 +1,87 @@
 import 'dart:math';
 
-import '../repo/words_repo.dart';
 import '../data/data.dart';
 
-void checkGuess(Word word, List<Word> words, Locale locale,
-    Null Function() onGuess, Null Function() onFail) {
-  if (word.locale == locale) {
-    onGuess();
-  } else {
-    resetWords(words);
-    onFail();
-  }
-}
+class GameController {
+  final List<Word> _words = [];
+  final List<Word> _gameWords = [];
+  GameState _gameState = GameState(
+      currentWord: null, currentScore: 0, isFinished: false, remainingWords: []);
 
-GameState getWord(List<Word> words, int wordsCountdown) {
-  if (wordsCountdown == 0) {
-    resetWords(words);
-    return GameState(word: null, finished: true);
-  } else {
-    Word? word = words.random();
-    if (word == null) {
-      return GameState(word: null, finished: true);
-    } else {
-      return GameState(word: word, finished: false);
+  GameController({required words}) {
+    _words.addAll(words);
+    _createGameWords();
+  }
+
+  void _createGameWords() {
+    List<int> unseenWordsIndices = [];
+    for (int i = 0; unseenWordsIndices.length <= 10; i++) {
+      int currentWordIndex = Random().nextInt(_words.length);
+      if (!unseenWordsIndices.contains(currentWordIndex)) {
+        var unseenWord = _words[currentWordIndex];
+        _gameWords.add(unseenWord);
+        unseenWordsIndices.add(currentWordIndex);
+      }
     }
   }
-}
 
-void restartGame(List<Word> words, Null Function() onRestart) {
-  resetWords(words);
-  onRestart();
-}
-
-void resetWords(List<Word> words) {
-  for (var word in words) {
-    word.seen = false;
+  GameState checkGuess(Word word, Locale locale) {
+    _gameState = GameState(
+        currentWord: null,
+        currentScore: word.locale == locale ? _gameState.currentScore + 1 : 0,
+        isFinished: true,
+        remainingWords: _gameWords);
+    return _gameState;
   }
-}
 
-Future<List<Word>> getAllWords() => fetchAllWords();
-
-extension UnseenWordRandomPick on List<Word> {
-  Word? random() {
-    var unseenWords = where((element) => !element.seen).toList();
-    if (unseenWords.isNotEmpty) {
-      int index = Random().nextInt(unseenWords.length);
-      var word = unseenWords[index];
-      firstWhere((element) => element == word).seen = true;
-      return word;
+  GameState getGameState() {
+    if (_gameState.wordCountDown == 0) {
+      if (!_gameState.isFinished) {
+        _setNewGameState();
+      } else {
+        _resetWords();
+        _gameState = GameState(
+            currentWord: null,
+            currentScore: _gameState.currentScore,
+            isFinished: true,
+            remainingWords: _gameWords);
+      }
     } else {
-      return null;
+      if (_gameWords.isEmpty) {
+        _gameState = GameState(
+            currentWord: null,
+            currentScore: _gameState.currentScore,
+            isFinished: true,
+            remainingWords: []);
+      } else {
+        _setNextWord(_gameState.currentScore);
+      }
     }
+    return _gameState;
+  }
+
+  GameState onRestartGame() {
+    _resetWords();
+    _createGameWords();
+    _setNewGameState();
+    return _gameState;
+  }
+
+  void _setNextWord(int newScore) {
+    int index = Random().nextInt(_gameWords.length);
+    Word word = _gameWords.removeAt(index);
+    _gameState = GameState(
+        currentWord: word,
+        currentScore: newScore,
+        isFinished: false,
+        remainingWords: _gameWords);
+  }
+
+  void _setNewGameState() {
+    _setNextWord(0);
+  }
+
+  void _resetWords() {
+    _gameWords.clear();
   }
 }

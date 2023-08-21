@@ -4,14 +4,22 @@ enum Locale { US, UK }
 final class Word {
   String word;
   Locale locale;
-  bool seen = false;
 
   Word({required this.word, required this.locale});
 }
 
 final class GameState {
-  Word? word;
-  bool finished = false;
+  Word? currentWord;
+  int currentScore;
+  bool isFinished;
+  List<Word> remainingWords;
+  int wordCountDown = 0;
 
-  GameState({required this.word, required this.finished});
+  GameState(
+      {required this.currentWord,
+      required this.isFinished,
+      required this.currentScore,
+      required this.remainingWords}) {
+    wordCountDown = remainingWords.length;
+  }
 }
