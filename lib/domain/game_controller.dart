@@ -5,7 +5,7 @@ import 'game_state_factory.dart';
 
 class GameController {
   final List<Word> _allWords = [];
-  GameState _gameState = initGameState(); // observe..
+  GameState _gameState = initGameState(); // TODO observe..
 
   GameController({required words}) {
     _allWords.addAll(words);
