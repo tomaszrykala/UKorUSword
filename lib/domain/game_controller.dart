@@ -7,29 +7,38 @@ import '../repo/words_repo.dart';
 import 'game_state_factory.dart';
 
 class GameController extends StateNotifier<GameState> {
-  GameController() : super(initGameState());
+  GameController() : super(createInitGameState());
 
   final List<Word> _allWords = [];
 
   final AutoDisposeStateNotifierProvider<GameController, GameState>
-      riverpodProvider =
+      stateProvider =
       StateNotifierProvider.autoDispose((ref) => GameController.init());
 
-  GameController.init() : super(initGameState()) {
+  GameController.init() : super(createInitGameState()) {
     _fetchData();
   }
 
-  // TODO make all private methods return the state
   Future<void> _fetchData() async {
-    state = initGameState();
+    state = createInitGameState();
 
     List<Word> allWords = await fetchAllWords();
     _allWords.addAll(allWords);
 
-    state = startNewGameState(_getNewGameWords());
+    _createStartGameState();
   }
 
-  void getGameState() {
+  void onRestartGameClicked() {
+    _createStartGameState();
+  }
+
+  void onWordGuess(Word word, Locale locale) {
+    var newScore = word.locale == locale ? state.score + 1 : 0;
+    state = createCheckWordGameState(word, newScore, state.remainingWords);
+    _publishGameState();
+  }
+
+  void _publishGameState() {
     if (state.finishedAllWords) {
       if (state.hasNextWords) {
         _setNextWordGameState(0);
@@ -41,33 +50,26 @@ class GameController extends StateNotifier<GameState> {
     }
   }
 
-  void getRestartGameState() {
-    _createStartGameState();
-  }
-
-  void checkGuess(Word word, Locale locale) {
-    var newScore = word.locale == locale ? state.score + 1 : 0;
-    state = checkWordGameState(word, newScore, state.remainingWords);
-    // return bool?
-  }
-
   void _setNextWordGameState(int newScore) {
     if (state.hasNextWords) {
       var remainingWords = state.remainingWords;
       int index = Random().nextInt(remainingWords.length);
       Word word = remainingWords.removeAt(index);
-      state = checkWordGameState(word, newScore, remainingWords);
+      state = createCheckWordGameState(word, newScore, remainingWords);
     } else {
-      state = finishedGameState(newScore);
+      state = createFinishedGameState(newScore);
     }
   }
 
-  void _createStartGameState() {
-    state = startNewGameState(_getNewGameWords());
+  void _resetGameState() {
+    state = createInitGameState();
+    _publishGameState();
   }
 
-  void _resetGameState() {
-    state = initGameState();
+  void _createStartGameState() {
+    var newGameWords = _getNewGameWords();
+    state = createStartNewGameState(newGameWords);
+    _publishGameState();
   }
 
   List<Word> _getNewGameWords() {

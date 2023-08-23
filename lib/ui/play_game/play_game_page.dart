@@ -12,20 +12,20 @@ class PlayGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      child: HomeRiverpod(title: title),
+      child: PlayGameRiverpod(title: title),
     );
   }
 }
 
-class HomeRiverpod extends ConsumerWidget {
-  HomeRiverpod({super.key, required this.title});
+class PlayGameRiverpod extends ConsumerWidget {
+  PlayGameRiverpod({super.key, required this.title});
 
   final String title;
   final GameController _controller = GameController.init();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = _controller.riverpodProvider;
+    final provider = _controller.stateProvider;
     final GameController notifier = ref.read(provider.notifier);
     final GameState state = ref.watch(provider);
 
@@ -34,23 +34,23 @@ class HomeRiverpod extends ConsumerWidget {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(title),
         ),
-        body: Center(child: buildContentColumn(state, notifier, context)));
+        body: Center(child: _buildContentColumn(state, notifier, context)));
   }
 
-  Column buildContentColumn(
+  Column _buildContentColumn(
       GameState state, GameController notifier, BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        buildTitleRow(state, context),
-        buildButtonsRow(state, notifier),
-        buildScoreRow(state, context),
-        if (!state.finishedAllWords) buildCountDownRow(state, context),
+        _buildTitleRow(state, context),
+        _buildButtonsRow(state, notifier),
+        _buildScoreRow(state, context),
+        if (!state.finishedAllWords) _buildCountDownRow(state, context),
       ],
     );
   }
 
-  Container buildTitleRow(GameState state, BuildContext context) => Container(
+  Container _buildTitleRow(GameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -65,7 +65,7 @@ class HomeRiverpod extends ConsumerWidget {
         ],
       ));
 
-  Row buildButtonsRow(GameState state, GameController notifier) {
+  Row _buildButtonsRow(GameState state, GameController notifier) {
     const insets = 16.0;
     if (state.finishedAllWords) {
       return Row(
@@ -73,18 +73,18 @@ class HomeRiverpod extends ConsumerWidget {
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialOffButton(Locale.UK)),
+              child: _buildMaterialOffButton(Locale.UK)),
           MaterialButton(
             height: 80,
             color: Colors.grey,
             onPressed: () {
-              notifier.getRestartGameState();
+              notifier.onRestartGameClicked();
             },
             child: const Text("Restart?"),
           ),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialOffButton(Locale.US))
+              child: _buildMaterialOffButton(Locale.US))
         ],
       );
     } else {
@@ -94,16 +94,16 @@ class HomeRiverpod extends ConsumerWidget {
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(notifier, word, Locale.UK)),
+              child: _buildMaterialButton(notifier, word, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(notifier, word, Locale.US))
+              child: _buildMaterialButton(notifier, word, Locale.US))
         ],
       );
     }
   }
 
-  Container buildScoreRow(GameState state, BuildContext context) => Container(
+  Container _buildScoreRow(GameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(top: 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -115,7 +115,7 @@ class HomeRiverpod extends ConsumerWidget {
         ],
       ));
 
-  Container buildCountDownRow(GameState state, BuildContext context) {
+  Container _buildCountDownRow(GameState state, BuildContext context) {
     var remaining = state.remainingWords;
     var text = remaining.isEmpty
         ? 'Last word!'
@@ -130,18 +130,18 @@ class HomeRiverpod extends ConsumerWidget {
         ));
   }
 
-  MaterialButton buildMaterialButton(
+  MaterialButton _buildMaterialButton(
           GameController notifier, Word word, Locale locale) =>
       MaterialButton(
         height: 80,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
-          notifier.checkGuess(word, locale);
+          notifier.onWordGuess(word, locale);
         },
         child: Text(locale.name),
       );
 
-  MaterialButton buildMaterialOffButton(Locale locale) => MaterialButton(
+  MaterialButton _buildMaterialOffButton(Locale locale) => MaterialButton(
         height: 80,
         color: Colors.grey,
         onPressed: () {},
