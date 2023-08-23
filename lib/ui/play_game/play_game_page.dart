@@ -1,79 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../repo/words_repo.dart';
 import '../../domain/game_controller.dart';
 import '../../data/data.dart';
 
-class PlayGamePage extends StatefulWidget {
+class PlayGamePage extends StatelessWidget {
   const PlayGamePage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<PlayGamePage> createState() => _PlayGamePageState();
-}
-
-class _PlayGamePageState extends State<PlayGamePage> {
-  GameController? _gameController;
-
-  _PlayGamePageState() {
-    _loadAllWords();
-  }
-
-  void _loadAllWords() async {
-    List<Word> allWords = await fetchAllWords();
-    setState(() {
-      _gameController = GameController(words: allWords);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-          child: _gameController != null
-              ? buildContentColumn(_gameController!.getGameState(), context)
-              : const CircularProgressIndicator(
-                  semanticsLabel: 'Loading game...',
-                )),
+    return ProviderScope(
+      child: HomeRiverpod(title: title),
     );
   }
+}
 
-  Column buildContentColumn(GameState gameState, BuildContext context) {
+class HomeRiverpod extends ConsumerWidget {
+  HomeRiverpod({super.key, required this.title});
+
+  final String title;
+  final GameController _controller = GameController.init();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = _controller.riverpodProvider;
+    final GameController notifier = ref.read(provider.notifier);
+    final GameState state = ref.watch(provider);
+
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(title),
+        ),
+        body: Center(child: buildContentColumn(state, notifier, context)));
+  }
+
+  Column buildContentColumn(
+      GameState state, GameController notifier, BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        buildTitleRow(gameState, context),
-        buildButtonsRow(gameState),
-        buildScoreRow(gameState, context),
-        if (!gameState.finishedAllWords) buildCountDownRow(gameState, context),
+        buildTitleRow(state, context),
+        buildButtonsRow(state, notifier),
+        buildScoreRow(state, context),
+        if (!state.finishedAllWords) buildCountDownRow(state, context),
       ],
     );
   }
 
-  Container buildTitleRow(GameState gameState, BuildContext context) =>
-      Container(
-          margin: const EdgeInsets.only(bottom: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                gameState.finishedAllWords
-                    ? 'Game Over'
-                    : 'The term is:\n`${gameState.word!.word}`',
-                style: Theme.of(context).textTheme.headlineLarge,
-                textAlign: TextAlign.center,
-              )
-            ],
-          ));
+  Container buildTitleRow(GameState state, BuildContext context) => Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            state.finishedAllWords
+                ? 'Game Over'
+                : 'The term is:\n`${state.word!.word}`',
+            style: Theme.of(context).textTheme.headlineLarge,
+            textAlign: TextAlign.center,
+          )
+        ],
+      ));
 
-  Row buildButtonsRow(GameState gameState) {
+  Row buildButtonsRow(GameState state, GameController notifier) {
     const insets = 16.0;
-    if (gameState.finishedAllWords) {
+    if (state.finishedAllWords) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -84,9 +78,7 @@ class _PlayGamePageState extends State<PlayGamePage> {
             height: 80,
             color: Colors.grey,
             onPressed: () {
-              setState(() {
-                _gameController!.getRestartGameState();
-              });
+              notifier.getRestartGameState();
             },
             child: const Text("Restart?"),
           ),
@@ -96,36 +88,35 @@ class _PlayGamePageState extends State<PlayGamePage> {
         ],
       );
     } else {
-      var word = gameState.word!;
+      var word = state.word!;
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(word, Locale.UK)),
+              child: buildMaterialButton(notifier, word, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: buildMaterialButton(word, Locale.US))
+              child: buildMaterialButton(notifier, word, Locale.US))
         ],
       );
     }
   }
 
-  Container buildScoreRow(GameState gameState, BuildContext context) =>
-      Container(
-          margin: const EdgeInsets.only(top: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'Your score is: ${gameState.score}',
-                style: Theme.of(context).textTheme.headlineSmall,
-              )
-            ],
-          ));
+  Container buildScoreRow(GameState state, BuildContext context) => Container(
+      margin: const EdgeInsets.only(top: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Your score is: ${state.score}',
+            style: Theme.of(context).textTheme.headlineSmall,
+          )
+        ],
+      ));
 
-  Container buildCountDownRow(GameState gameState, BuildContext context) {
-    var remaining = gameState.remainingWords;
+  Container buildCountDownRow(GameState state, BuildContext context) {
+    var remaining = state.remainingWords;
     var text = remaining.isEmpty
         ? 'Last word!'
         : 'Remaining words: ${remaining.length}.';
@@ -134,22 +125,18 @@ class _PlayGamePageState extends State<PlayGamePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              text,
-              style: Theme.of(context).textTheme.headlineSmall,
-            )
+            Text(text, style: Theme.of(context).textTheme.headlineSmall)
           ],
         ));
   }
 
-  MaterialButton buildMaterialButton(Word word, Locale locale) =>
+  MaterialButton buildMaterialButton(
+          GameController notifier, Word word, Locale locale) =>
       MaterialButton(
         height: 80,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
-          setState(() {
-            _gameController!.checkGuess(word, locale);
-          });
+          notifier.checkGuess(word, locale);
         },
         child: Text(locale.name),
       );
