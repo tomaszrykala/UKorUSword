@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'ui/play_game/play_game_page.dart';
+import 'ui/home/home_page.dart';
 
 void main() {
   runApp(const UkOrUsWord());
@@ -9,15 +8,17 @@ void main() {
 class UkOrUsWord extends StatelessWidget {
   const UkOrUsWord({super.key});
 
+  static const _title = 'UK or US Word?';
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'UK or US Word?',
+      title: _title,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const PlayGamePage(title: 'UK or US Word?'),
+      home: const HomePage(title: _title),
     );
   }
 }
