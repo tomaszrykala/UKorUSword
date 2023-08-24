@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../play_game/play_game_mode.dart';
 import '../play_game/play_game_page.dart';
+import '../styles.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -11,10 +13,10 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() => _HomePageState();
 }
 
-enum GameMode { solo, duel }
+enum _GameMode { solo, duel }
 
 class _HomePageState extends State<HomePage> {
-  GameMode _gameMode = GameMode.solo;
+  _GameMode _gameMode = _GameMode.solo;
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +52,11 @@ class _HomePageState extends State<HomePage> {
                   style: Theme.of(context).textTheme.headlineSmall)),
           Switch(
               // This bool value toggles the switch.
-              value: _gameMode == GameMode.duel,
+              value: _gameMode == _GameMode.duel,
               activeColor: Colors.red,
               onChanged: (bool isDuelMode) {
                 setState(() {
-                  _gameMode = isDuelMode ? GameMode.duel : GameMode.solo;
+                  _gameMode = isDuelMode ? _GameMode.duel : _GameMode.solo;
                 });
               }),
           Container(
@@ -68,16 +70,36 @@ class _HomePageState extends State<HomePage> {
   Container _buildPlayerNameEntryWidget(BuildContext context) =>
       Container(margin: const EdgeInsets.only(bottom: 24), child: null);
 
-  MaterialButton _buildStartButton(BuildContext context) => MaterialButton(
-        height: 80,
-        color: Colors.yellow,
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => PlayGamePage(title: widget.title),
-            ),
+  MaterialButton _buildStartButton(BuildContext context) {
+    var isSoloMode = _gameMode == _GameMode.solo; // ..&& names are present!
+
+    if (isSoloMode) {
+      return MaterialButton(
+          height: buttonHeight,
+          color: Colors.yellow,
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => PlayGamePage(
+                  title: widget.title,
+                  playGameMode: isSoloMode
+                      ? PlayGameMode.solo()
+                      : PlayGameMode.duel(
+                          p1Name: 'Player 1', p2Name: 'Player 2'),
+                ),
+              ),
+            );
+          },
+          child:
+              const Text('START') // if P2mode and names not set, active = false
           );
-        },
-        child: const Text('START'),
+    } else {
+      return MaterialButton(
+        height: buttonHeight,
+        color: Colors.grey,
+        onPressed: () {},
+        child: const Text('Not supported yet.'),
       );
+    }
+  }
 }

@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../styles.dart';
+import 'play_game_mode.dart';
 import '../../domain/game_controller.dart';
 import '../../data/data.dart';
 
 class PlayGamePage extends StatelessWidget {
-  const PlayGamePage({super.key, required this.title});
+  const PlayGamePage(
+      {super.key, required this.title, required this.playGameMode});
 
   final String title;
+  final PlayGameMode playGameMode;
 
   @override
   Widget build(BuildContext context) => ProviderScope(
-        child: PlayGameRiverpod(title: title),
+        child: _PlayGameRiverpod(title: title),
       );
 }
 
-class PlayGameRiverpod extends ConsumerWidget {
-  PlayGameRiverpod({super.key, required this.title});
+class _PlayGameRiverpod extends ConsumerWidget {
+  _PlayGameRiverpod({required this.title});
 
   final String title;
   final GameController _controller = GameController.init();
@@ -73,7 +77,7 @@ class PlayGameRiverpod extends ConsumerWidget {
               margin: const EdgeInsets.all(insets),
               child: _buildMaterialOffButton(Locale.UK)),
           MaterialButton(
-            height: 80,
+            height: buttonHeight,
             color: Colors.grey,
             onPressed: () {
               notifier.onRestartGameClicked();
@@ -131,7 +135,7 @@ class PlayGameRiverpod extends ConsumerWidget {
   MaterialButton _buildMaterialButton(
           GameController notifier, Word word, Locale locale) =>
       MaterialButton(
-        height: 80,
+        height: buttonHeight,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
           notifier.onWordGuess(word, locale);
@@ -140,7 +144,7 @@ class PlayGameRiverpod extends ConsumerWidget {
       );
 
   MaterialButton _buildMaterialOffButton(Locale locale) => MaterialButton(
-        height: 80,
+        height: buttonHeight,
         color: Colors.grey,
         onPressed: () {},
         child: Text(locale.name),
