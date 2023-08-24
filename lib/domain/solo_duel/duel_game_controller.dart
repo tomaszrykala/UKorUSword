@@ -15,7 +15,8 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   String _p1Name;
   String _p2Name;
   final List<Word> _allWords = [];
-  var _isPlayerOne = true;
+
+  // var _isPlayerOne = true;
 
   final AutoDisposeStateNotifierProvider<DuelGameController, DuelGameState>
       stateProvider = StateNotifierProvider.autoDispose(
@@ -39,17 +40,17 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     _createStartDuelGameState();
   }
 
-  void onWordGuess(Word word,Locale locale) {
+  void onWordGuess(Word word, Locale locale) {
     GameState gameState = state.getCurrentGameState();
     var newScore = word.locale == locale ? gameState.score + 1 : 0;
     state = createCheckWordDuelGameState(
-        word, newScore, gameState.remainingWords, _isPlayerOne, state);
+        word, newScore, gameState.remainingWords, state.isPlayer1, state);
 
-    print("published state of _isPlayerOne: $_isPlayerOne.");
+    print("published state of _isPlayerOne: ${state.isPlayer1}.");
     // print("onWordGuess of _isPlayer1: ${state.player1.gameState.remainingWords.length}");
     // print("onWordGuess of _isPlayer2: ${state.player2.gameState.remainingWords.length}");
 
-    _isPlayerOne = !_isPlayerOne;
+    // _isPlayerOne = !_isPlayerOne;
     _publishDuelGameState();
     // _isPlayerOne = !_isPlayerOne;
   }
@@ -70,21 +71,27 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   void _setNextWordDuelGameState(int newScore) {
+    state = DuelGameState(
+        isPlayer1: !state.isPlayer1, player1: state.player1, player2: state.player2);
+    // fixes the countdown but breaks the scoring
+
     GameState gameState = state.getCurrentGameState();
     if (gameState.hasNextWords) {
       var remainingWords = gameState.remainingWords;
       int index = Random().nextInt(remainingWords.length);
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(
-          word, newScore, remainingWords, _isPlayerOne, state);
+          word, newScore, remainingWords, state.isPlayer1, state);
 
       print("published newScore: $newScore.");
-      print("_setNextWordDuelGameState of _isPlayer1: ${state.player1.gameState
-          .remainingWords.length}");
-      print("_setNextWordDuelGameState of _isPlayer2: ${state.player2.gameState
-          .remainingWords.length}");
+      print(
+          "_setNextWordDuelGameState of _isPlayer1: ${state.player1.gameState.remainingWords.length}");
+      print(
+          "_setNextWordDuelGameState of _isPlayer2: ${state.player2.gameState.remainingWords.length}");
+
+      // state = DuelGameState(isPlayer1: !state.isPlayer1, player1: state.player1, player2: state.player2);
     } else {
-      state = createFinishedDuelGameState(newScore, _isPlayerOne, state);
+      state = createFinishedDuelGameState(newScore, state.isPlayer1, state);
     }
   }
 

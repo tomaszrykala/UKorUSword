@@ -38,12 +38,12 @@ DuelGameState createCheckWordDuelGameState(Word word, int newScore, List<Word> r
       player1: DuelPlayer(
           name: duelGameState.player1.name,
           gameState: _checkWord(word, newScore, remaining)),
-      player2: duelGameState.player2,
+      player2: duelGameState.player2, // update with the new score?
     );
   } else {
     return DuelGameState(
       isPlayer1: false,
-      player1: duelGameState.player1,
+      player1: duelGameState.player1, // update with the new score?
       player2: DuelPlayer(
           name: duelGameState.player2.name,
           gameState: _checkWord(word, newScore, remaining)),
