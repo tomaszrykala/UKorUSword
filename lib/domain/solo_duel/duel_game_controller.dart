@@ -35,38 +35,27 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     _createStartDuelGameState();
   }
 
-  void setNames(String p1Name, String p2Name) {
-    if (_p1Name != p1Name && _p2Name != p2Name) {
-      _p1Name = p1Name;
-      _p2Name = p2Name;
-
-      var p1Words = state.player1.gameState.remainingWords;
-      var p2Words = state.player2.gameState.remainingWords;
-      state = createStartNewDuelGameState(p1Words, p2Words, p1Name, p2Name);
-      _publishDuelGameState();
-
-      // state = createInitDuelGameState(_p1Name, _p2Name);
-      // _createStartDuelGameState();
-    }
-  }
-
   void onRestartGameClicked() {
     _createStartDuelGameState();
   }
 
-  void onWordGuess(Word word, Locale locale) {
-    GameState gameState = _getGameState();
+  void onWordGuess(Word word,Locale locale) {
+    GameState gameState = state.getCurrentGameState();
     var newScore = word.locale == locale ? gameState.score + 1 : 0;
     state = createCheckWordDuelGameState(
-        word, newScore, gameState.remainingWords, _isPlayerOne, _p1Name, _p2Name);
+        word, newScore, gameState.remainingWords, _isPlayerOne, state);
+
+    print("published state of _isPlayerOne: $_isPlayerOne.");
+    // print("onWordGuess of _isPlayer1: ${state.player1.gameState.remainingWords.length}");
+    // print("onWordGuess of _isPlayer2: ${state.player2.gameState.remainingWords.length}");
+
+    _isPlayerOne = !_isPlayerOne;
     _publishDuelGameState();
+    // _isPlayerOne = !_isPlayerOne;
   }
 
-  GameState _getGameState() =>
-      _isPlayerOne ? state.player1.gameState : state.player2.gameState;
-
   void _publishDuelGameState() {
-    GameState gameState = _getGameState();
+    GameState gameState = state.getCurrentGameState();
     if (gameState.finishedAllWords) {
       if (gameState.hasNextWords) {
         _setNextWordDuelGameState(0);
@@ -77,18 +66,25 @@ class DuelGameController extends StateNotifier<DuelGameState> {
       _setNextWordDuelGameState(gameState.score);
     }
     // _isPlayerOne = !_isPlayerOne;
+    // print("publishing state of _isPlayerOne: $_isPlayerOne.");
   }
 
   void _setNextWordDuelGameState(int newScore) {
-    GameState gameState = _getGameState();
+    GameState gameState = state.getCurrentGameState();
     if (gameState.hasNextWords) {
       var remainingWords = gameState.remainingWords;
       int index = Random().nextInt(remainingWords.length);
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(
-          word, newScore, remainingWords, _isPlayerOne, _p1Name, _p2Name);
+          word, newScore, remainingWords, _isPlayerOne, state);
+
+      print("published newScore: $newScore.");
+      print("_setNextWordDuelGameState of _isPlayer1: ${state.player1.gameState
+          .remainingWords.length}");
+      print("_setNextWordDuelGameState of _isPlayer2: ${state.player2.gameState
+          .remainingWords.length}");
     } else {
-      state = createFinishedDuelGameState(newScore, _isPlayerOne, _p1Name, _p2Name);
+      state = createFinishedDuelGameState(newScore, _isPlayerOne, state);
     }
   }
 
@@ -105,20 +101,18 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   _DuelNewGameWords _getNewGameWords() {
-    // // DEBUG?
-    // if (_allWords.isEmpty) {
-    //   return _DuelNewGameWords([], []);
-    // }
     const playerCount = 2;
     List<int> unseenWordsIndices = [];
     List<List<Word>> newGameWords = [[], []];
     for (int playerIndex = 0; playerIndex < playerCount; playerIndex++) {
-      for (int i = 0; unseenWordsIndices.length < 10; i++) {
+      for (int i = 0; i < 10; i++) {
         int currentWordIndex = Random().nextInt(_allWords.length);
         if (!unseenWordsIndices.contains(currentWordIndex)) {
           var unseenWord = _allWords[currentWordIndex];
           newGameWords[playerIndex].add(unseenWord);
           unseenWordsIndices.add(currentWordIndex);
+        } else {
+          i--;
         }
       }
     }

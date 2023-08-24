@@ -35,8 +35,7 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   void onWordGuess(Word word, Locale locale) {
     var gameState = state.player.gameState;
     var newScore = word.locale == locale ? gameState.score + 1 : 0;
-    state =
-        createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
+    state = createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
     _publishSoloGameState();
   }
 
@@ -79,13 +78,14 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   List<Word> _getNewGameWords() {
     List<Word> gameWords = [];
     List<int> unseenWordsIndices = [];
-    for (int i = 0; unseenWordsIndices.length < 10; i++) {
-      // adds 11 words..
+    for (int i = 0; i < 10; i++) {
       int currentWordIndex = Random().nextInt(_allWords.length);
       if (!unseenWordsIndices.contains(currentWordIndex)) {
         var unseenWord = _allWords[currentWordIndex];
         gameWords.add(unseenWord);
         unseenWordsIndices.add(currentWordIndex);
+      } else {
+        i--;
       }
     }
     return gameWords;

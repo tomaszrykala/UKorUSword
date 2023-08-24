@@ -20,50 +20,46 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
     final provider = _controller.stateProvider;
     final DuelGameController notifier = ref.read(provider.notifier);
     final DuelGameState state = ref.watch(provider);
-    final GameState gameState =
-        state.isPlayer1 ? state.player1.gameState : state.player2.gameState;
-    final playerName = state.isPlayer1 ? state.player1.name : state.player2.name;
-
-    // if (state.isInitialised) {_controller.setNames(p1Name, p2Name);}
 
     return Scaffold(
         appBar: AppBar(
           backgroundColor: appBarColor(context),
           title: Text(title),
         ),
-        body:
-            Center(child: _buildContentColumn(gameState, playerName, notifier, context)));
+        body: Center(child: _buildContentColumn(state, notifier, context)));
   }
 
-  Column _buildContentColumn(GameState state, String playerName,
-      DuelGameController notifier, BuildContext context) {
+  Column _buildContentColumn(
+      DuelGameState state, DuelGameController notifier, BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         _buildTitleRow(state, context),
         _buildButtonsRow(state, notifier),
-        _buildScoreRow(state, playerName, context),
-        if (!state.finishedAllWords) _buildCountDownRow(state, context),
+        _buildScoreRow(state, context),
+        if (!state.finishedAllDuelWords()) _buildCountDownRow(state, context),
       ],
     );
   }
 
-  Container _buildTitleRow(GameState state, BuildContext context) => Container(
+  Container _buildTitleRow(DuelGameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            state.finishedAllWords ? 'Game Over' : 'The term is:\n`${state.word!.word}`',
+            state.finishedAllDuelWords()
+                ? 'Game Over'
+                : 'The term is:\n`${state.getCurrentGameState().word!.word}`',
             style: textLarge(context),
             textAlign: TextAlign.center,
           )
         ],
       ));
 
-  Row _buildButtonsRow(GameState state, DuelGameController notifier) {
+  Row _buildButtonsRow(DuelGameState state, DuelGameController notifier) {
     const insets = 16.0;
-    if (state.finishedAllWords) {
+    if (state.finishedAllDuelWords()) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -84,7 +80,8 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         ],
       );
     } else {
-      var word = state.word!;
+      var word = state.getCurrentGameState().word!;
+      var player = state.getCurrentPlayer();
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -99,21 +96,24 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
     }
   }
 
-  Container _buildScoreRow(GameState state, String playerName, BuildContext context) =>
-      Container(
-          margin: const EdgeInsets.only(top: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                '$playerName\'s score is: ${state.score}',
-                style: textSmall(context),
-              )
-            ],
-          ));
+  Container _buildScoreRow(DuelGameState state, BuildContext context) {
+    var playerName = state.getCurrentPlayerName();
+    var gameState = state.getCurrentGameState();
+    return Container(
+        margin: const EdgeInsets.only(top: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              '$playerName\'s score is: ${gameState.score}',
+              style: textSmall(context),
+            )
+          ],
+        ));
+  }
 
-  Container _buildCountDownRow(GameState state, BuildContext context) {
-    var remaining = state.remainingWords;
+  Container _buildCountDownRow(DuelGameState state, BuildContext context) {
+    var remaining = state.getCurrentGameState().remainingWords;
     var text = remaining.isEmpty ? 'Last word!' : 'Remaining words: ${remaining.length}.';
     return Container(
         margin: const EdgeInsets.only(top: 24),
