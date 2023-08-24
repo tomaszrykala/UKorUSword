@@ -2,31 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../styles.dart';
-import '../../../domain/game_controller.dart';
+import '../../../domain/solo_duel/solo_game_controller.dart';
 import '../../../data/data.dart';
 
 class SoloPlayGameRiverpod extends ConsumerWidget {
   SoloPlayGameRiverpod({super.key, required this.title});
 
   final String title;
-  final GameController _controller = GameController.init();
+  final SoloGameController _controller = SoloGameController.init();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = _controller.stateProvider;
-    final GameController notifier = ref.read(provider.notifier);
-    final GameState state = ref.watch(provider);
+    final SoloGameController notifier = ref.read(provider.notifier);
+    final SoloGameState state = ref.watch(provider);
+    final GameState gameState = state.player.gameState;
 
     return Scaffold(
         appBar: AppBar(
           backgroundColor: appBarColor(context),
           title: Text(title),
         ),
-        body: Center(child: _buildContentColumn(state, notifier, context)));
+        body: Center(child: _buildContentColumn(gameState, notifier, context)));
   }
 
   Column _buildContentColumn(
-      GameState state, GameController notifier, BuildContext context) {
+      GameState state, SoloGameController notifier, BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -53,7 +54,7 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
         ],
       ));
 
-  Row _buildButtonsRow(GameState state, GameController notifier) {
+  Row _buildButtonsRow(GameState state, SoloGameController notifier) {
     const insets = 16.0;
     if (state.finishedAllWords) {
       return Row(
@@ -114,7 +115,7 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
   }
 
   MaterialButton _buildMaterialButton(
-          GameController notifier, Word word, Locale locale) =>
+          SoloGameController notifier, Word word, Locale locale) =>
       MaterialButton(
         height: buttonHeight,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,

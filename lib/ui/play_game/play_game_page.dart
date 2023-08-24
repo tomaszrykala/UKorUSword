@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'play_game_mode.dart';
 import 'play_game_riverpod.dart';
+import 'solo_duel/solo_game_riverpod.dart';
 
 class PlayGamePage extends StatelessWidget {
   const PlayGamePage(
@@ -13,6 +14,8 @@ class PlayGamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ProviderScope(
-        child: PlayGameRiverpod(title: title),
+        child: playGameMode.isDuelMode
+            ? PlayGameRiverpod(title: title) // old
+            : SoloPlayGameRiverpod(title: title), // new
       );
 }
