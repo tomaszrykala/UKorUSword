@@ -33,7 +33,7 @@ class _PlayGameRiverpod extends ConsumerWidget {
 
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          backgroundColor: appBarColor(context),
           title: Text(title),
         ),
         body: Center(child: _buildContentColumn(state, notifier, context)));
@@ -61,7 +61,7 @@ class _PlayGameRiverpod extends ConsumerWidget {
             state.finishedAllWords
                 ? 'Game Over'
                 : 'The term is:\n`${state.word!.word}`',
-            style: Theme.of(context).textTheme.headlineLarge,
+            style: textLarge(context),
             textAlign: TextAlign.center,
           )
         ],
@@ -112,7 +112,7 @@ class _PlayGameRiverpod extends ConsumerWidget {
         children: <Widget>[
           Text(
             'Your score is: ${state.score}',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: textSmall(context),
           )
         ],
       ));
@@ -124,12 +124,7 @@ class _PlayGameRiverpod extends ConsumerWidget {
         : 'Remaining words: ${remaining.length}.';
     return Container(
         margin: const EdgeInsets.only(top: 24),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(text, style: Theme.of(context).textTheme.headlineSmall)
-          ],
-        ));
+        child: Text(text, style: textSmall(context)));
   }
 
   MaterialButton _buildMaterialButton(

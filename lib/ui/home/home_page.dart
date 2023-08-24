@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         // TODO Scaffold to the app!
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          backgroundColor: appBarColor(context),
           title: Text(widget.title),
         ),
         body: Center(
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Text _buildTitle(BuildContext context) =>
-      Text('Game Mode:', style: Theme.of(context).textTheme.headlineLarge);
+      Text('Game Mode:', style: textLarge(context));
 
   Container _buildGameModeSwitchRow(BuildContext context) => Container(
       margin: const EdgeInsets.only(top: 24, bottom: 24),
@@ -59,8 +59,7 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           Container(
               margin: const EdgeInsets.only(right: 16.0),
-              child: Text('Solo',
-                  style: Theme.of(context).textTheme.headlineSmall)),
+              child: Text('Solo', style: textSmall(context))),
           Switch(
               value: _gameMode == _GameMode.duel,
               activeColor: Colors.red,
@@ -71,8 +70,7 @@ class _HomePageState extends State<HomePage> {
               }),
           Container(
               margin: const EdgeInsets.only(left: 16.0),
-              child: Text('Duel',
-                  style: Theme.of(context).textTheme.headlineSmall))
+              child: Text('Duel', style: textSmall(context)))
         ],
       ));
 
