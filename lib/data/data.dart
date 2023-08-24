@@ -20,3 +20,25 @@ final class GameState {
       : finishedAllWords = remainingWords.isEmpty && word == null,
         hasNextWords = remainingWords.isNotEmpty;
 }
+
+final class DuelPlayer {
+  final String name;
+  final GameState gameState;
+
+  DuelPlayer({required this.name, required this.gameState});
+}
+
+sealed class WordGameState {}
+
+final class SoloGameState extends WordGameState {
+  final DuelPlayer player;
+
+  SoloGameState({required this.player});
+}
+
+final class DuelGameState extends WordGameState {
+  final DuelPlayer player1;
+  final DuelPlayer player2;
+
+  DuelGameState({required this.player1, required this.player2});
+}
