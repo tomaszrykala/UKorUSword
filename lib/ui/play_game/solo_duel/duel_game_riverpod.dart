@@ -12,30 +12,37 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
   final String title;
   final String p1Name;
   final String p2Name;
-  final DuelGameController _controller = DuelGameController.init();
+  final DuelGameController _controller =
+      DuelGameController.init("Player 1", "Player 2"); // p1Name, p2Name
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = _controller.stateProvider;
     final DuelGameController notifier = ref.read(provider.notifier);
     final DuelGameState state = ref.watch(provider);
-    final GameState gameState = state.player1.gameState;
+    final GameState gameState =
+        state.isPlayer1 ? state.player1.gameState : state.player2.gameState;
+    final playerName = state.isPlayer1 ? state.player1.name : state.player2.name;
+
+    // if (state.isInitialised) {_controller.setNames(p1Name, p2Name);}
 
     return Scaffold(
         appBar: AppBar(
           backgroundColor: appBarColor(context),
           title: Text(title),
         ),
-        body: Center(child: _buildContentColumn(gameState, notifier, context)));
+        body:
+            Center(child: _buildContentColumn(gameState, playerName, notifier, context)));
   }
 
-  Column _buildContentColumn(GameState state, DuelGameController notifier, BuildContext context) {
+  Column _buildContentColumn(GameState state, String playerName,
+      DuelGameController notifier, BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         _buildTitleRow(state, context),
         _buildButtonsRow(state, notifier),
-        _buildScoreRow(state, context),
+        _buildScoreRow(state, playerName, context),
         if (!state.finishedAllWords) _buildCountDownRow(state, context),
       ],
     );
@@ -61,7 +68,8 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
-              margin: const EdgeInsets.all(insets), child: _buildMaterialOffButton(Locale.UK)),
+              margin: const EdgeInsets.all(insets),
+              child: _buildMaterialOffButton(Locale.UK)),
           MaterialButton(
             height: buttonHeight,
             color: Colors.grey,
@@ -70,7 +78,9 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
             },
             child: const Text("Restart?"),
           ),
-          Container(margin: const EdgeInsets.all(insets), child: _buildMaterialOffButton(Locale.US))
+          Container(
+              margin: const EdgeInsets.all(insets),
+              child: _buildMaterialOffButton(Locale.US))
         ],
       );
     } else {
@@ -89,26 +99,29 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
     }
   }
 
-  Container _buildScoreRow(GameState state, BuildContext context) => Container(
-      margin: const EdgeInsets.only(top: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Your score is: ${state.score}',
-            style: textSmall(context),
-          )
-        ],
-      ));
+  Container _buildScoreRow(GameState state, String playerName, BuildContext context) =>
+      Container(
+          margin: const EdgeInsets.only(top: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                '$playerName\'s score is: ${state.score}',
+                style: textSmall(context),
+              )
+            ],
+          ));
 
   Container _buildCountDownRow(GameState state, BuildContext context) {
     var remaining = state.remainingWords;
     var text = remaining.isEmpty ? 'Last word!' : 'Remaining words: ${remaining.length}.';
     return Container(
-        margin: const EdgeInsets.only(top: 24), child: Text(text, style: textSmall(context)));
+        margin: const EdgeInsets.only(top: 24),
+        child: Text(text, style: textSmall(context)));
   }
 
-  MaterialButton _buildMaterialButton(DuelGameController notifier, Word word, Locale locale) =>
+  MaterialButton _buildMaterialButton(
+          DuelGameController notifier, Word word, Locale locale) =>
       MaterialButton(
         height: buttonHeight,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,

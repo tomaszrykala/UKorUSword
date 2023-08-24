@@ -15,8 +15,7 @@ final class GameState {
   final bool finishedAllWords;
   final bool hasNextWords;
 
-  GameState(
-      {required this.word, required this.score, required this.remainingWords})
+  GameState({required this.word, required this.score, required this.remainingWords})
       : finishedAllWords = remainingWords.isEmpty && word == null,
         hasNextWords = remainingWords.isNotEmpty;
 }
@@ -37,8 +36,12 @@ final class SoloGameState extends WordGameState {
 }
 
 final class DuelGameState extends WordGameState {
+  final bool isInitialised; // TODO hack?
+  final bool isPlayer1;
   final DuelPlayer player1;
   final DuelPlayer player2;
 
-  DuelGameState({required this.player1, required this.player2});
+  DuelGameState({required this.isPlayer1, required this.player1, required this.player2})
+      : isInitialised = player1.gameState.remainingWords.isNotEmpty &&
+            player2.gameState.remainingWords.isNotEmpty;
 }
