@@ -10,11 +10,9 @@ class PlayGamePage extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) {
-    return ProviderScope(
-      child: PlayGameRiverpod(title: title),
-    );
-  }
+  Widget build(BuildContext context) => ProviderScope(
+        child: PlayGameRiverpod(title: title),
+      );
 }
 
 class PlayGameRiverpod extends ConsumerWidget {
