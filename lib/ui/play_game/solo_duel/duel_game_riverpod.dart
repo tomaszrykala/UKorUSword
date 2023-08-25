@@ -97,7 +97,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
   }
 
   Container _buildScoreRow(DuelGameState state, BuildContext context) {
-    var playerName = state.getCurrentPlayerName();
+    var playerName = state.getCurrentPlayer().name;
     var gameState = state.getCurrentGameState();
     return Container(
         margin: const EdgeInsets.only(top: 24),

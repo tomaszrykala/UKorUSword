@@ -5,11 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/data.dart';
 import '../../repo/words_repo.dart';
 import '../game_state_factory.dart';
+import '../new_game_words_factory.dart';
 
 class SoloGameController extends StateNotifier<SoloGameState> {
   SoloGameController() : super(createInitSoloGameState());
 
   final List<Word> _allWords = [];
+  final NewGameWordsFactory _newGameWordsFactory = NewGameWordsFactory();
 
   final AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState>
       stateProvider =
@@ -70,24 +72,8 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   }
 
   void _createStartSoloGameState() {
-    var newGameWords = _getNewGameWords();
-    state = createStartNewSoloGameState(newGameWords);
+    List<List<Word>> gameWords = _newGameWordsFactory.getNewGameWords(_allWords, 1);
+    state = createStartNewSoloGameState(gameWords[0]);
     _publishSoloGameState();
-  }
-
-  List<Word> _getNewGameWords() {
-    List<Word> gameWords = [];
-    List<int> unseenWordsIndices = [];
-    for (int i = 0; i < 10; i++) {
-      int currentWordIndex = Random().nextInt(_allWords.length);
-      if (!unseenWordsIndices.contains(currentWordIndex)) {
-        var unseenWord = _allWords[currentWordIndex];
-        gameWords.add(unseenWord);
-        unseenWordsIndices.add(currentWordIndex);
-      } else {
-        i--;
-      }
-    }
-    return gameWords;
   }
 }
