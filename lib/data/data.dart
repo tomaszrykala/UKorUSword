@@ -13,11 +13,11 @@ final class GameState {
   final int score;
   final List<Word> remainingWords;
   final bool finishedAllWords;
-  final bool hasNextWords;
+  final bool hasRemainingWords;
 
   GameState({required this.word, required this.score, required this.remainingWords})
       : finishedAllWords = remainingWords.isEmpty && word == null,
-        hasNextWords = remainingWords.isNotEmpty;
+        hasRemainingWords = remainingWords.isNotEmpty;
 }
 
 final class DuelPlayer {

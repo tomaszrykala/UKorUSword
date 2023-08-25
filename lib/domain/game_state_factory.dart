@@ -19,8 +19,7 @@ SoloGameState createFinishedSoloGameState(int finalScore) =>
 DuelGameState createInitDuelGameState(String p1Name, String p2Name) => DuelGameState(
       isPlayer1: true,
       player1: DuelPlayer(name: p1Name, gameState: _initGame()),
-      player2: DuelPlayer(
-          name: p2Name, gameState: _initGame()), // ensure words aren't repeated!
+      player2: DuelPlayer(name: p2Name, gameState: _initGame()),
     );
 
 DuelGameState createStartNewDuelGameState(
@@ -30,20 +29,20 @@ DuelGameState createStartNewDuelGameState(
         player1: DuelPlayer(name: p1Name, gameState: _startNewGame(p1Words)),
         player2: DuelPlayer(name: p2Name, gameState: _startNewGame(p2Words)));
 
-DuelGameState createCheckWordDuelGameState(Word word, int newScore, List<Word> remaining,
-    bool isPlayer1, DuelGameState duelGameState) {
-  if (isPlayer1) {
+DuelGameState createCheckWordDuelGameState(
+    Word word, int newScore, List<Word> remaining, DuelGameState duelGameState) {
+  if (duelGameState.isPlayer1) {
     return DuelGameState(
       isPlayer1: true,
       player1: DuelPlayer(
           name: duelGameState.player1.name,
           gameState: _checkWord(word, newScore, remaining)),
-      player2: duelGameState.player2, // update with the new score?
+      player2: duelGameState.player2, // TODO CSQ update with the new score?
     );
   } else {
     return DuelGameState(
       isPlayer1: false,
-      player1: duelGameState.player1, // update with the new score?
+      player1: duelGameState.player1, // TODO CSQ update with the new score?
       player2: DuelPlayer(
           name: duelGameState.player2.name,
           gameState: _checkWord(word, newScore, remaining)),
@@ -51,23 +50,14 @@ DuelGameState createCheckWordDuelGameState(Word word, int newScore, List<Word> r
   }
 }
 
-DuelGameState createFinishedDuelGameState(
-    int finalScore, bool isPlayer1, DuelGameState duelGameState) {
-  if (isPlayer1) {
-    return DuelGameState(
-      isPlayer1: true,
-      player1: DuelPlayer(
-          name: duelGameState.player1.name, gameState: _finishedGame(finalScore)),
-      player2: duelGameState.player2,
-    );
-  } else {
-    return DuelGameState(
+DuelGameState createFinishedDuelGameState(int finalScore, DuelGameState duelGameState) {
+  var player1 = duelGameState.player1;
+  return DuelGameState(
       isPlayer1: false,
-      player1: duelGameState.player1,
+      player1: DuelPlayer(
+          name: player1.name, gameState: _finishedGame(player1.gameState.score)),
       player2: DuelPlayer(
-          name: duelGameState.player2.name, gameState: _finishedGame(finalScore)),
-    );
-  }
+          name: duelGameState.player2.name, gameState: _finishedGame(finalScore)));
 }
 
 // GameState
