@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../styles.dart';
-import '../../../domain/solo_duel/duel_game_controller.dart';
+import '../../../domain/controller/duel_game_controller.dart';
 import '../../../data/data.dart';
 
 class DuelPlayGameRiverpod extends ConsumerWidget {

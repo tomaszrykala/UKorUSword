@@ -7,10 +7,10 @@ Future<List<Word>> fetchAllWords() async {
   final rawData = await rootBundle.loadString("assets/words.csv");
   List<List<dynamic>> csvData =
       const CsvToListConverter(eol: ";", allowInvalid: false).convert(rawData);
-  return mapAllWords(csvData);
+  return _mapAllWords(csvData);
 }
 
-List<Word> mapAllWords(List<List<dynamic>> csvData) {
+List<Word> _mapAllWords(List<List<dynamic>> csvData) {
   List<Word> allWords = [];
   for (var wordData in csvData) {
     if (wordData.length == 2) {
