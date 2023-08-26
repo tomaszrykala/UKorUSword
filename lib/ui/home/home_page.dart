@@ -17,13 +17,24 @@ enum _GameMode { solo, duel }
 
 class _HomePageState extends State<HomePage> {
   _GameMode _gameMode = _GameMode.solo;
+  final TextEditingController _p1NameController = TextEditingController();
+  final TextEditingController _p2NameController = TextEditingController();
+  var _p1Name = '';
+  var _p2Name = '';
+
+  @override
+  void dispose() {
+    _p1NameController.dispose();
+    _p2NameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         // TODO Scaffold to the app!
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          backgroundColor: appBarColor(context),
           title: Text(widget.title),
         ),
         body: Center(
@@ -32,14 +43,14 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             _buildTitle(context),
             _buildGameModeSwitchRow(context),
-            // if (_gameMode == GameMode.duel) _buildPlayerNameEntryWidget(context),
-            _buildStartButton(context),
+            _buildPlayerNameEntryWidget(context),
+            _buildStartButtons(context),
           ],
         )));
   }
 
   Text _buildTitle(BuildContext context) =>
-      Text('Game Mode:', style: Theme.of(context).textTheme.headlineLarge);
+      Text('Game Mode:', style: textLarge(context));
 
   Container _buildGameModeSwitchRow(BuildContext context) => Container(
       margin: const EdgeInsets.only(top: 24, bottom: 24),
@@ -48,10 +59,8 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           Container(
               margin: const EdgeInsets.only(right: 16.0),
-              child: Text('Solo',
-                  style: Theme.of(context).textTheme.headlineSmall)),
+              child: Text('Solo', style: textSmall(context))),
           Switch(
-              // This bool value toggles the switch.
               value: _gameMode == _GameMode.duel,
               activeColor: Colors.red,
               onChanged: (bool isDuelMode) {
@@ -61,20 +70,77 @@ class _HomePageState extends State<HomePage> {
               }),
           Container(
               margin: const EdgeInsets.only(left: 16.0),
-              child: Text('Duel',
-                  style: Theme.of(context).textTheme.headlineSmall))
+              child: Text('Duel', style: textSmall(context)))
         ],
       ));
 
-  // TODO
-  Container _buildPlayerNameEntryWidget(BuildContext context) =>
-      Container(margin: const EdgeInsets.only(bottom: 24), child: null);
+  Container _buildPlayerNameEntryWidget(BuildContext context) {
+    return Container(
+        margin: const EdgeInsets.only(bottom: 24),
+        child: _gameMode == _GameMode.solo
+            ? null
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      const Text('Player 1 name:'),
+                      SizedBox(
+                        width: 120,
+                        height: 60,
+                        child: TextFormField(
+                          onChanged: (text) => setState(() {
+                            _p1Name = text;
+                          }),
+                          controller: _p1NameController,
+                          decoration: const InputDecoration(
+                            border: UnderlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: <Widget>[
+                      const Text('Player 2 name:'),
+                      SizedBox(
+                        width: 120,
+                        height: 60,
+                        child: TextFormField(
+                          onChanged: (text) => setState(() {
+                            _p2Name = text;
+                          }),
+                          controller: _p2NameController,
+                          decoration: const InputDecoration(
+                            border: UnderlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ));
+  }
 
-  MaterialButton _buildStartButton(BuildContext context) {
-    var isSoloMode = _gameMode == _GameMode.solo; // ..&& names are present!
+  MaterialButton _buildStartButtons(BuildContext context) {
+    if (_gameMode == _GameMode.solo) {
+      return _buildStartGameButton(context, true);
+    } else {
+      if (_p1Name.isNotEmpty && _p2Name.isNotEmpty) {
+        return _buildStartGameButton(context, false);
+      } else {
+        return MaterialButton(
+          height: buttonHeight,
+          color: Colors.grey,
+          onPressed: () {},
+          child: const Text('Enter names.'),
+        );
+      }
+    }
+  }
 
-    if (isSoloMode) {
-      return MaterialButton(
+  MaterialButton _buildStartGameButton(BuildContext context, bool isSoloMode) =>
+      MaterialButton(
           height: buttonHeight,
           color: Colors.yellow,
           onPressed: () {
@@ -84,22 +150,10 @@ class _HomePageState extends State<HomePage> {
                   title: widget.title,
                   playGameMode: isSoloMode
                       ? PlayGameMode.solo()
-                      : PlayGameMode.duel(
-                          p1Name: 'Player 1', p2Name: 'Player 2'),
+                      : PlayGameMode.duel(p1Name: _p1Name, p2Name: _p2Name),
                 ),
               ),
             );
           },
-          child:
-              const Text('START') // if P2mode and names not set, active = false
-          );
-    } else {
-      return MaterialButton(
-        height: buttonHeight,
-        color: Colors.grey,
-        onPressed: () {},
-        child: const Text('Not supported yet.'),
-      );
-    }
-  }
+          child: const Text('START'));
 }
