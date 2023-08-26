@@ -11,13 +11,10 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   SoloGameController() : super(createInitSoloGameState());
 
   final List<Word> _allWords = [];
-  final GameWordsFactory _newGameWordsFactory = GameWordsFactory();
-
-  final AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState>
-      stateProvider =
-      StateNotifierProvider.autoDispose((ref) => SoloGameController.init());
+  late AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState> stateProvider;
 
   SoloGameController.init() : super(createInitSoloGameState()) {
+    stateProvider = StateNotifierProvider.autoDispose((ref) => this);
     _fetchData();
   }
 
@@ -72,8 +69,13 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   }
 
   void _createStartSoloGameState() {
-    List<List<Word>> gameWords = _newGameWordsFactory.getNewGameWords(_allWords, 1);
+    final List<List<Word>> gameWords = _getNewGameWords();
     state = createStartNewSoloGameState(gameWords[0]);
     _publishSoloGameState();
+  }
+
+  List<List<Word>> _getNewGameWords() {
+    final gameWordsFactory = GameWordsFactory(); // TODO inject
+    return gameWordsFactory.getNewGameWords(_allWords, 1);
   }
 }
