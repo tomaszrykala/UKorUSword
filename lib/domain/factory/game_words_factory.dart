@@ -1,13 +1,13 @@
 import 'dart:math';
 
-import '../data/data.dart';
+import '../../data/data.dart';
 
-class NewGameWordsFactory {
-  final _wordsPerPlayer = 10;
+class GameWordsFactory {
+  static const _wordsPerPlayer = 10;
 
   List<List<Word>> getNewGameWords(List<Word> allWords, int playerCount) {
     if (_wordsPerPlayer * playerCount > allWords.length) {
-      throw ArgumentError("allWords count exceeds 10 unique words per player sum.");
+      throw ArgumentError("AllWords size must not exceed 10 unique words per player.");
     } else {
       List<int> unseenWordsIndices = [];
       List<List<Word>> newGameWords = [];
@@ -16,18 +16,16 @@ class NewGameWordsFactory {
       }
 
       for (int playerIndex = 0; playerIndex < playerCount; playerIndex++) {
-        for (int i = 0; i < _wordsPerPlayer; i++) {
+        for (int wordIndex = 0; wordIndex < _wordsPerPlayer;) {
           int currentWordIndex = Random().nextInt(allWords.length);
           if (!unseenWordsIndices.contains(currentWordIndex)) {
             var unseenWord = allWords[currentWordIndex];
             newGameWords[playerIndex].add(unseenWord);
             unseenWordsIndices.add(currentWordIndex);
-          } else {
-            i--;
+            wordIndex++;
           }
         }
       }
-
       return newGameWords;
     }
   }

@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data.dart';
 import '../../repo/words_repo.dart';
-import '../game_state_factory.dart';
-import '../new_game_words_factory.dart';
+import '../factory/game_state_factory.dart';
+import '../factory/game_words_factory.dart';
 
 class DuelGameController extends StateNotifier<DuelGameState> {
   DuelGameController({required String p1Name, required String p2Name})
@@ -16,7 +16,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   String _p1Name;
   String _p2Name;
   final List<Word> _allWords = [];
-  final NewGameWordsFactory _newGameWordsFactory = NewGameWordsFactory();
+  final GameWordsFactory _newGameWordsFactory = GameWordsFactory();
 
   final AutoDisposeStateNotifierProvider<DuelGameController, DuelGameState>
       stateProvider = StateNotifierProvider.autoDispose(
