@@ -6,10 +6,11 @@ import '../../../domain/solo_duel/solo_game_controller.dart';
 import '../../../data/data.dart';
 
 class SoloPlayGameRiverpod extends ConsumerWidget {
-  SoloPlayGameRiverpod({super.key, required this.title});
+  SoloPlayGameRiverpod({super.key, required this.title})
+      : _controller = SoloGameController.init();
 
   final String title;
-  final SoloGameController _controller = SoloGameController.init();
+  final SoloGameController _controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,9 +46,7 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            state.finishedAllWords
-                ? 'Game Over'
-                : 'The term is:\n`${state.word!.word}`',
+            state.finishedAllWords ? 'Game Over' : 'The term is:\n`${state.word!.word}`',
             style: textLarge(context),
             textAlign: TextAlign.center,
           )
@@ -106,9 +105,7 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
 
   Container _buildCountDownRow(GameState state, BuildContext context) {
     var remaining = state.remainingWords;
-    var text = remaining.isEmpty
-        ? 'Last word!'
-        : 'Remaining words: ${remaining.length}.';
+    var text = remaining.isEmpty ? 'Last word!' : 'Remaining words: ${remaining.length}.';
     return Container(
         margin: const EdgeInsets.only(top: 24),
         child: Text(text, style: textSmall(context)));

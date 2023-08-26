@@ -1,4 +1,4 @@
-import '../data/data.dart';
+import '../../data/data.dart';
 
 // SoloGameState
 SoloGameState createInitSoloGameState() =>

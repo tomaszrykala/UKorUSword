@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data.dart';
 import '../../repo/words_repo.dart';
-import '../game_state_factory.dart';
-import '../new_game_words_factory.dart';
+import '../factory/game_state_factory.dart';
+import '../factory/game_words_factory.dart';
 
 class DuelGameController extends StateNotifier<DuelGameState> {
   DuelGameController({required String p1Name, required String p2Name})
@@ -13,17 +13,14 @@ class DuelGameController extends StateNotifier<DuelGameState> {
         _p2Name = p2Name,
         super(createInitDuelGameState(p1Name, p2Name));
 
-  String _p1Name;
-  String _p2Name;
+  final String _p1Name;
+  final String _p2Name;
   final List<Word> _allWords = [];
-  final NewGameWordsFactory _newGameWordsFactory = NewGameWordsFactory();
-
-  final AutoDisposeStateNotifierProvider<DuelGameController, DuelGameState>
-      stateProvider = StateNotifierProvider.autoDispose(
-          (ref) => DuelGameController.init("Player 1", "Player 2"));
+  late AutoDisposeStateNotifierProvider<DuelGameController, DuelGameState> stateProvider;
 
   DuelGameController.init(this._p1Name, this._p2Name)
       : super(createInitDuelGameState(_p1Name, _p2Name)) {
+    stateProvider = StateNotifierProvider.autoDispose((ref) => this);
     _fetchData();
   }
 
@@ -92,8 +89,13 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   void _createStartDuelGameState() {
-    List<List<Word>> gameWords = _newGameWordsFactory.getNewGameWords(_allWords, 2);
+    final List<List<Word>> gameWords = _getNewGameWords();
     state = createStartNewDuelGameState(gameWords[0], gameWords[1], _p1Name, _p2Name);
     _publishDuelGameState();
+  }
+
+  List<List<Word>> _getNewGameWords() {
+    final gameWordsFactory = GameWordsFactory(); // TODO inject
+    return gameWordsFactory.getNewGameWords(_allWords, 2);
   }
 }

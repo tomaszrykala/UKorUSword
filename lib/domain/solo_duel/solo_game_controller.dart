@@ -4,20 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data.dart';
 import '../../repo/words_repo.dart';
-import '../game_state_factory.dart';
-import '../new_game_words_factory.dart';
+import '../factory/game_state_factory.dart';
+import '../factory/game_words_factory.dart';
 
 class SoloGameController extends StateNotifier<SoloGameState> {
   SoloGameController() : super(createInitSoloGameState());
 
   final List<Word> _allWords = [];
-  final NewGameWordsFactory _newGameWordsFactory = NewGameWordsFactory();
-
-  final AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState>
-      stateProvider =
-      StateNotifierProvider.autoDispose((ref) => SoloGameController.init());
+  late AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState> stateProvider;
 
   SoloGameController.init() : super(createInitSoloGameState()) {
+    stateProvider = StateNotifierProvider.autoDispose((ref) => this);
     _fetchData();
   }
 
@@ -72,8 +69,13 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   }
 
   void _createStartSoloGameState() {
-    List<List<Word>> gameWords = _newGameWordsFactory.getNewGameWords(_allWords, 1);
+    final List<List<Word>> gameWords = _getNewGameWords();
     state = createStartNewSoloGameState(gameWords[0]);
     _publishSoloGameState();
+  }
+
+  List<List<Word>> _getNewGameWords() {
+    final gameWordsFactory = GameWordsFactory(); // TODO inject
+    return gameWordsFactory.getNewGameWords(_allWords, 1);
   }
 }

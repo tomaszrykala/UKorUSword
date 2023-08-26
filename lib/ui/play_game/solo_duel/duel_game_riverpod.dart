@@ -7,13 +7,11 @@ import '../../../data/data.dart';
 
 class DuelPlayGameRiverpod extends ConsumerWidget {
   DuelPlayGameRiverpod(
-      {super.key, required this.title, required this.p1Name, required this.p2Name});
+      {super.key, required this.title, required String p1Name, required p2Name})
+      : _controller = DuelGameController.init(p1Name, p2Name);
 
   final String title;
-  final String p1Name;
-  final String p2Name;
-  final DuelGameController _controller =
-      DuelGameController.init("Player 1", "Player 2"); // p1Name, p2Name
+  final DuelGameController _controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -81,7 +79,6 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
       );
     } else {
       var word = state.getCurrentGameState().word!;
-      var player = state.getCurrentPlayer();
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
