@@ -81,7 +81,6 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
       );
     } else {
       var word = state.getCurrentGameState().word!;
-      var player = state.getCurrentPlayer();
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
