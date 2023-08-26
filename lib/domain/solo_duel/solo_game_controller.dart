@@ -19,39 +19,37 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   }
 
   Future<void> _fetchData() async {
-    state = createInitSoloGameState();
-
     List<Word> allWords = await fetchAllWords();
     _allWords.addAll(allWords);
 
-    _createStartSoloGameState();
+    _createStartGameState();
   }
 
   void onRestartGameClicked() {
-    _createStartSoloGameState();
+    _createStartGameState();
   }
 
   void onWordGuess(Word word, Locale locale) {
     var gameState = state.player.gameState;
     var newScore = word.locale == locale ? gameState.score + 1 : 0;
     state = createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
-    _publishSoloGameState();
+    _publishGameState();
   }
 
-  void _publishSoloGameState() {
+  void _publishGameState() {
     var gameState = state.player.gameState;
     if (gameState.finishedAllWords) {
       if (gameState.hasRemainingWords) {
-        _setNextWordSoloGameState(0);
+        _setNextWordGameState(0);
       } else {
-        _resetSoloGameState();
+        _resetGameState();
       }
     } else {
-      _setNextWordSoloGameState(gameState.score);
+      _setNextWordGameState(gameState.score);
     }
   }
 
-  void _setNextWordSoloGameState(int newScore) {
+  void _setNextWordGameState(int newScore) {
     var gameState = state.player.gameState;
     if (gameState.hasRemainingWords) {
       var remainingWords = gameState.remainingWords;
@@ -63,15 +61,15 @@ class SoloGameController extends StateNotifier<SoloGameState> {
     }
   }
 
-  void _resetSoloGameState() {
+  void _resetGameState() {
     state = createInitSoloGameState();
-    _publishSoloGameState();
+    _publishGameState();
   }
 
-  void _createStartSoloGameState() {
+  void _createStartGameState() {
     final List<List<Word>> gameWords = _getNewGameWords();
     state = createStartNewSoloGameState(gameWords[0]);
-    _publishSoloGameState();
+    _publishGameState();
   }
 
   List<List<Word>> _getNewGameWords() {

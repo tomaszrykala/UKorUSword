@@ -25,16 +25,14 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   Future<void> _fetchData() async {
-    state = createInitDuelGameState(_p1Name, _p2Name);
-
     List<Word> allWords = await fetchAllWords();
     _allWords.addAll(allWords);
 
-    _createStartDuelGameState();
+    _createStartGameState();
   }
 
   void onRestartGameClicked() {
-    _createStartDuelGameState();
+    _createStartGameState();
   }
 
   void onWordGuess(Word word, Locale locale) {
@@ -48,23 +46,23 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     state = DuelGameState(
         isPlayer1: !state.isPlayer1, player1: state.player1, player2: state.player2);
 
-    _publishDuelGameState();
+    _publishGameState();
   }
 
-  void _publishDuelGameState() {
+  void _publishGameState() {
     GameState gameState = state.getCurrentGameState();
     if (gameState.finishedAllWords) {
       if (gameState.hasRemainingWords) {
-        _setNextWordDuelGameState(0);
+        _setNextWordGameState(0);
       } else {
-        _resetDuelGameState();
+        _resetGameState();
       }
     } else {
-      _setNextWordDuelGameState(gameState.score);
+      _setNextWordGameState(gameState.score);
     }
   }
 
-  void _setNextWordDuelGameState(int newScore) {
+  void _setNextWordGameState(int newScore) {
     GameState gameState = state.getCurrentGameState();
     if (gameState.hasRemainingWords) {
       var remainingWords = gameState.remainingWords;
@@ -72,7 +70,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(word, newScore, remainingWords, state);
     } else {
-      if (playingLastPlayerLastWord()) {
+      if (state.playingLastPlayerLastWord) {
         // Playing last Player's last word. The next state will be FinishedGameState.
       } else {
         state = createFinishedDuelGameState(newScore, state);
@@ -80,18 +78,15 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     }
   }
 
-  bool playingLastPlayerLastWord() =>
-      state.isPlayer1 && !state.player2.gameState.hasRemainingWords;
-
-  void _resetDuelGameState() {
+  void _resetGameState() {
     state = createInitDuelGameState(_p1Name, _p2Name);
-    _publishDuelGameState();
+    _publishGameState();
   }
 
-  void _createStartDuelGameState() {
+  void _createStartGameState() {
     final List<List<Word>> gameWords = _getNewGameWords();
     state = createStartNewDuelGameState(gameWords[0], gameWords[1], _p1Name, _p2Name);
-    _publishDuelGameState();
+    _publishGameState();
   }
 
   List<List<Word>> _getNewGameWords() {

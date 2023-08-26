@@ -9,43 +9,45 @@ final class Word {
 }
 
 final class GameState {
-  final Word? word;
   final int score;
+  final Word? word;
   final List<Word> remainingWords;
   final bool finishedAllWords;
   final bool hasRemainingWords;
 
-  GameState({required this.word, required this.score, required this.remainingWords})
+  GameState({required this.score, required this.word, required this.remainingWords})
       : finishedAllWords = remainingWords.isEmpty && word == null,
         hasRemainingWords = remainingWords.isNotEmpty;
 }
 
-final class DuelPlayer {
+final class Player {
   final String name;
   final GameState gameState;
 
-  DuelPlayer({required this.name, required this.gameState});
+  Player({required this.name, required this.gameState});
 }
 
 sealed class WordGameState {}
 
 final class SoloGameState extends WordGameState {
-  final DuelPlayer player;
+  final Player player;
 
   SoloGameState({required this.player});
 }
 
 final class DuelGameState extends WordGameState {
   final bool isPlayer1;
-  final DuelPlayer player1;
-  final DuelPlayer player2;
+  final Player player1;
+  final Player player2;
+  final bool finishedAllPlayerWords;
+  final bool playingLastPlayerLastWord;
 
-  DuelGameState({required this.isPlayer1, required this.player1, required this.player2});
+  DuelGameState({required this.isPlayer1, required this.player1, required this.player2})
+      : finishedAllPlayerWords =
+            player1.gameState.finishedAllWords && player2.gameState.finishedAllWords,
+        playingLastPlayerLastWord = isPlayer1 && !player2.gameState.hasRemainingWords;
 
-  DuelPlayer getCurrentPlayer() => isPlayer1 ? player1 : player2;
+  Player getCurrentPlayer() => isPlayer1 ? player1 : player2;
 
   GameState getCurrentGameState() => getCurrentPlayer().gameState;
-
-  bool finishedAllDuelWords() =>
-      player1.gameState.finishedAllWords && player2.gameState.finishedAllWords;
 }
