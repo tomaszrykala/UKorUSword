@@ -4,19 +4,18 @@ import 'package:csv/csv.dart';
 import '../data/data.dart';
 
 class WordsRepository {
+  final List<Word> _allWords = [];
 
-  final List<Word> allWords = [];
+  void init() => _fetchData();
 
-  WordsRepository() {
-    _fetchData();
-  }
+  List<Word> getAllWords() => _allWords;
 
   Future<void> _fetchData() async {
-    List<Word> allWords = await fetchAllWords();
-    allWords.addAll(allWords);
+    List<Word> allWords = await _fetchAllWords();
+    _allWords.addAll(allWords);
   }
 
-  Future<List<Word>> fetchAllWords() async {
+  Future<List<Word>> _fetchAllWords() async {
     final rawData = await rootBundle.loadString("assets/words.csv");
     List<List<dynamic>> csvData =
         const CsvToListConverter(eol: ";", allowInvalid: false).convert(rawData);

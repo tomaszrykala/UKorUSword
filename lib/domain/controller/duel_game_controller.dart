@@ -1,9 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../di/game_module.dart';
 import '../../data/data.dart';
-import '../../repo/words_repo.dart';
 import '../factory/game_state_factory.dart';
 import '../factory/game_words_factory.dart';
 
@@ -15,13 +14,14 @@ class DuelGameController extends StateNotifier<DuelGameState> {
 
   final String _p1Name;
   final String _p2Name;
-  final GameWordsFactory _gameWordsFactory =
-      GameWordsFactory(wordsRepository: WordsRepository()); // inject
-  late AutoDisposeStateNotifierProvider<DuelGameController, DuelGameState> stateProvider;
+  late final GameWordsFactory _gameWordsFactory;
+  late final AutoDisposeStateNotifierProvider<DuelGameController, DuelGameState>
+      stateProvider;
 
   DuelGameController.init(this._p1Name, this._p2Name)
       : super(createInitDuelGameState(_p1Name, _p2Name)) {
     stateProvider = StateNotifierProvider.autoDispose((ref) => this);
+    _gameWordsFactory = GameModule.instance.gameWordsFactory();
     onRestartGameClicked();
   }
 

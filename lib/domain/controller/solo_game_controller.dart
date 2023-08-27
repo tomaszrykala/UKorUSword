@@ -1,21 +1,21 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../di/game_module.dart';
 import '../../data/data.dart';
-import '../../repo/words_repo.dart';
 import '../factory/game_state_factory.dart';
 import '../factory/game_words_factory.dart';
 
 class SoloGameController extends StateNotifier<SoloGameState> {
   SoloGameController() : super(createInitSoloGameState());
 
-  final GameWordsFactory _gameWordsFactory =
-      GameWordsFactory(wordsRepository: WordsRepository()); // inject
-  late AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState> stateProvider;
+  late final GameWordsFactory _gameWordsFactory;
+  late final AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState>
+      stateProvider;
 
   SoloGameController.init() : super(createInitSoloGameState()) {
     stateProvider = StateNotifierProvider.autoDispose((ref) => this);
+    _gameWordsFactory = GameModule.instance.gameWordsFactory();
     onRestartGameClicked();
   }
 
