@@ -6,7 +6,9 @@ import '../data/data.dart';
 class WordsRepository {
   final List<Word> _allWords = [];
 
-  void init() => _fetchData();
+  void init() {
+    if (_allWords.isEmpty) _fetchData();
+  }
 
   List<Word> getAllWords() => _allWords;
 
