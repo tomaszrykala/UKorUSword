@@ -40,12 +40,10 @@ final class DuelGameState extends WordGameState {
   final Player player1;
   final Player player2;
   final bool finishedAllPlayerWords;
-  final bool playingLastPlayerLastWord;
 
   DuelGameState({required this.isPlayer1, required this.player1, required this.player2})
       : finishedAllPlayerWords =
-            player1.gameState.finishedAllWords && player2.gameState.finishedAllWords,
-        playingLastPlayerLastWord = isPlayer1 && !player2.gameState.hasRemainingWords;
+            player1.gameState.finishedAllWords && player2.gameState.finishedAllWords;
 
   Player getCurrentPlayer() => isPlayer1 ? player1 : player2;
 
