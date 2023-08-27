@@ -10,19 +10,13 @@ import '../factory/game_words_factory.dart';
 class SoloGameController extends StateNotifier<SoloGameState> {
   SoloGameController() : super(createInitSoloGameState());
 
-  final List<Word> _allWords = [];
+  final GameWordsFactory _gameWordsFactory =
+      GameWordsFactory(wordsRepository: WordsRepository()); // inject
   late AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState> stateProvider;
 
   SoloGameController.init() : super(createInitSoloGameState()) {
     stateProvider = StateNotifierProvider.autoDispose((ref) => this);
-    _fetchData();
-  }
-
-  Future<void> _fetchData() async {
-    List<Word> allWords = await fetchAllWords();
-    _allWords.addAll(allWords);
-
-    _createStartGameState();
+    onRestartGameClicked();
   }
 
   void onRestartGameClicked() {
@@ -67,13 +61,8 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   }
 
   void _createStartGameState() {
-    final List<List<Word>> gameWords = _getNewGameWords();
+    final List<List<Word>> gameWords = _gameWordsFactory.getNewGameWords(1);
     state = createStartNewSoloGameState(gameWords[0]);
     _publishGameState();
-  }
-
-  List<List<Word>> _getNewGameWords() {
-    final gameWordsFactory = GameWordsFactory(); // TODO inject
-    return gameWordsFactory.getNewGameWords(_allWords, 1);
   }
 }

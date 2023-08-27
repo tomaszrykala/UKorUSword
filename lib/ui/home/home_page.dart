@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:ukorusword/repo/words_repo.dart';
 
 import '../play_game/play_game_mode.dart';
 import '../play_game/play_game_page.dart';
 import '../styles.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
+  HomePage({super.key, required this.title});
 
   final String title;
 
@@ -17,6 +18,7 @@ enum _GameMode { solo, duel }
 
 class _HomePageState extends State<HomePage> {
   _GameMode _gameMode = _GameMode.solo;
+  final WordsRepository wordsRepository = WordsRepository();
   final TextEditingController _p1NameController = TextEditingController();
   final TextEditingController _p2NameController = TextEditingController();
   var _p1Name = '';
@@ -49,8 +51,7 @@ class _HomePageState extends State<HomePage> {
         )));
   }
 
-  Text _buildTitle(BuildContext context) =>
-      Text('Game Mode:', style: textLarge(context));
+  Text _buildTitle(BuildContext context) => Text('Game Mode:', style: textLarge(context));
 
   Container _buildGameModeSwitchRow(BuildContext context) => Container(
       margin: const EdgeInsets.only(top: 24, bottom: 24),
@@ -149,8 +150,11 @@ class _HomePageState extends State<HomePage> {
                 builder: (context) => PlayGamePage(
                   title: widget.title,
                   playGameMode: isSoloMode
-                      ? PlayGameMode.solo()
-                      : PlayGameMode.duel(p1Name: _p1Name, p2Name: _p2Name),
+                      ? PlayGameMode.solo(wordsRepository: wordsRepository)
+                      : PlayGameMode.duel(
+                          wordsRepository: wordsRepository,
+                          p1Name: _p1Name,
+                          p2Name: _p2Name),
                 ),
               ),
             );

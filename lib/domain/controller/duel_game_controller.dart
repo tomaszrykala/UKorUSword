@@ -15,20 +15,14 @@ class DuelGameController extends StateNotifier<DuelGameState> {
 
   final String _p1Name;
   final String _p2Name;
-  final List<Word> _allWords = [];
+  final GameWordsFactory _gameWordsFactory =
+      GameWordsFactory(wordsRepository: WordsRepository()); // inject
   late AutoDisposeStateNotifierProvider<DuelGameController, DuelGameState> stateProvider;
 
   DuelGameController.init(this._p1Name, this._p2Name)
       : super(createInitDuelGameState(_p1Name, _p2Name)) {
     stateProvider = StateNotifierProvider.autoDispose((ref) => this);
-    _fetchData();
-  }
-
-  Future<void> _fetchData() async {
-    List<Word> allWords = await fetchAllWords();
-    _allWords.addAll(allWords);
-
-    _createStartGameState();
+    onRestartGameClicked();
   }
 
   void onRestartGameClicked() {
@@ -84,13 +78,8 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   void _createStartGameState() {
-    final List<List<Word>> gameWords = _getNewGameWords();
+    final List<List<Word>> gameWords = _gameWordsFactory.getNewGameWords(2);
     state = createStartNewDuelGameState(gameWords[0], gameWords[1], _p1Name, _p2Name);
     _publishGameState();
-  }
-
-  List<List<Word>> _getNewGameWords() {
-    final gameWordsFactory = GameWordsFactory(); // TODO inject
-    return gameWordsFactory.getNewGameWords(_allWords, 2);
   }
 }
