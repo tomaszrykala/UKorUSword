@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'play_game_mode.dart';
-import 'solo_duel/duel_game_riverpod.dart';
-import 'solo_duel/solo_game_riverpod.dart';
+import 'screen/duel_game_riverpod.dart';
+import 'screen/solo_game_riverpod.dart';
 
 class PlayGamePage extends StatelessWidget {
   const PlayGamePage({super.key, required this.title, required this.playGameMode});

@@ -1,57 +1,49 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../di/game_module.dart';
 import '../../data/data.dart';
-import '../../repo/words_repo.dart';
 import '../factory/game_state_factory.dart';
 import '../factory/game_words_factory.dart';
 
 class SoloGameController extends StateNotifier<SoloGameState> {
   SoloGameController() : super(createInitSoloGameState());
 
-  final List<Word> _allWords = [];
-  late AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState> stateProvider;
+  late final GameWordsFactory _gameWordsFactory;
+  late final AutoDisposeStateNotifierProvider<SoloGameController, SoloGameState>
+      stateProvider;
 
   SoloGameController.init() : super(createInitSoloGameState()) {
     stateProvider = StateNotifierProvider.autoDispose((ref) => this);
-    _fetchData();
-  }
-
-  Future<void> _fetchData() async {
-    state = createInitSoloGameState();
-
-    List<Word> allWords = await fetchAllWords();
-    _allWords.addAll(allWords);
-
-    _createStartSoloGameState();
+    _gameWordsFactory = GameModule.instance.gameWordsFactory();
+    onRestartGameClicked();
   }
 
   void onRestartGameClicked() {
-    _createStartSoloGameState();
+    _createStartGameState();
   }
 
   void onWordGuess(Word word, Locale locale) {
     var gameState = state.player.gameState;
     var newScore = word.locale == locale ? gameState.score + 1 : 0;
     state = createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
-    _publishSoloGameState();
+    _publishGameState();
   }
 
-  void _publishSoloGameState() {
+  void _publishGameState() {
     var gameState = state.player.gameState;
     if (gameState.finishedAllWords) {
       if (gameState.hasRemainingWords) {
-        _setNextWordSoloGameState(0);
+        _setNextWordGameState(0);
       } else {
-        _resetSoloGameState();
+        _resetGameState();
       }
     } else {
-      _setNextWordSoloGameState(gameState.score);
+      _setNextWordGameState(gameState.score);
     }
   }
 
-  void _setNextWordSoloGameState(int newScore) {
+  void _setNextWordGameState(int newScore) {
     var gameState = state.player.gameState;
     if (gameState.hasRemainingWords) {
       var remainingWords = gameState.remainingWords;
@@ -63,19 +55,14 @@ class SoloGameController extends StateNotifier<SoloGameState> {
     }
   }
 
-  void _resetSoloGameState() {
+  void _resetGameState() {
     state = createInitSoloGameState();
-    _publishSoloGameState();
+    _publishGameState();
   }
 
-  void _createStartSoloGameState() {
-    final List<List<Word>> gameWords = _getNewGameWords();
+  void _createStartGameState() {
+    final List<List<Word>> gameWords = _gameWordsFactory.getNewGameWords(1);
     state = createStartNewSoloGameState(gameWords[0]);
-    _publishSoloGameState();
-  }
-
-  List<List<Word>> _getNewGameWords() {
-    final gameWordsFactory = GameWordsFactory(); // TODO inject
-    return gameWordsFactory.getNewGameWords(_allWords, 1);
+    _publishGameState();
   }
 }

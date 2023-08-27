@@ -2,40 +2,40 @@ import '../../data/data.dart';
 
 // SoloGameState
 SoloGameState createInitSoloGameState() =>
-    SoloGameState(player: DuelPlayer(name: "", gameState: _initGameState()));
+    SoloGameState(player: Player(name: "", gameState: _initGameState()));
 
 SoloGameState createStartNewSoloGameState(List<Word> remaining) =>
-    SoloGameState(player: DuelPlayer(name: "", gameState: _startNewGameState(remaining)));
+    SoloGameState(player: Player(name: "", gameState: _startNewGameState(remaining)));
 
 SoloGameState createCheckWordSoloGameState(
         Word word, int newScore, List<Word> remaining) =>
     SoloGameState(
-        player: DuelPlayer(
+        player: Player(
             name: "", gameState: _checkWordGameState(word, newScore, remaining)));
 
 SoloGameState createFinishedSoloGameState(int finalScore) => SoloGameState(
-    player: DuelPlayer(name: "", gameState: _finishedGameState(finalScore)));
+    player: Player(name: "", gameState: _finishedGameState(finalScore)));
 
 // DuelGameState
 DuelGameState createInitDuelGameState(String p1Name, String p2Name) => DuelGameState(
       isPlayer1: true,
-      player1: DuelPlayer(name: p1Name, gameState: _initGameState()),
-      player2: DuelPlayer(name: p2Name, gameState: _initGameState()),
+      player1: Player(name: p1Name, gameState: _initGameState()),
+      player2: Player(name: p2Name, gameState: _initGameState()),
     );
 
 DuelGameState createStartNewDuelGameState(
         List<Word> p1Words, List<Word> p2Words, String p1Name, String p2Name) =>
     DuelGameState(
         isPlayer1: true,
-        player1: DuelPlayer(name: p1Name, gameState: _startNewGameState(p1Words)),
-        player2: DuelPlayer(name: p2Name, gameState: _startNewGameState(p2Words)));
+        player1: Player(name: p1Name, gameState: _startNewGameState(p1Words)),
+        player2: Player(name: p2Name, gameState: _startNewGameState(p2Words)));
 
 DuelGameState createCheckWordDuelGameState(
     Word word, int newScore, List<Word> remaining, DuelGameState state) {
   if (state.isPlayer1) {
     return DuelGameState(
       isPlayer1: true,
-      player1: DuelPlayer(
+      player1: Player(
           name: state.player1.name,
           gameState: _checkWordGameState(word, newScore, remaining)),
       player2: state.player2,
@@ -44,7 +44,7 @@ DuelGameState createCheckWordDuelGameState(
     return DuelGameState(
       isPlayer1: false,
       player1: state.player1,
-      player2: DuelPlayer(
+      player2: Player(
           name: state.player2.name,
           gameState: _checkWordGameState(word, newScore, remaining)),
     );
@@ -55,9 +55,9 @@ DuelGameState createFinishedDuelGameState(int finalScore, DuelGameState state) {
   var player1 = state.player1;
   return DuelGameState(
       isPlayer1: false,
-      player1: DuelPlayer(
+      player1: Player(
           name: player1.name, gameState: _finishedGameState(player1.gameState.score)),
-      player2: DuelPlayer(
+      player2: Player(
           name: state.player2.name, gameState: _finishedGameState(finalScore)));
 }
 

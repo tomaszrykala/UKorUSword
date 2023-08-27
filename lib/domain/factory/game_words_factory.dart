@@ -1,11 +1,17 @@
 import 'dart:math';
 
 import '../../data/data.dart';
+import '../../repo/words_repo.dart';
 
 class GameWordsFactory {
   static const _wordsPerPlayer = 10;
 
-  List<List<Word>> getNewGameWords(List<Word> allWords, int playerCount) {
+  final WordsRepository wordsRepository;
+
+  GameWordsFactory({required this.wordsRepository});
+
+  List<List<Word>> getNewGameWords(int playerCount) {
+    final allWords = wordsRepository.getAllWords();
     if (_wordsPerPlayer * playerCount > allWords.length) {
       throw ArgumentError("AllWords size must not exceed 10 unique words per player.");
     } else {
