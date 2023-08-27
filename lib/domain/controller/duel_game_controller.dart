@@ -64,11 +64,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(word, newScore, remainingWords, state);
     } else {
-      if (state.playingLastPlayerLastWord) {
-        // Playing last Player's last word. The next state will be FinishedGameState.
-      } else {
-        state = createFinishedDuelGameState(newScore, state);
-      }
+      state = createFinishedDuelGameState(newScore, state);
     }
   }
 
