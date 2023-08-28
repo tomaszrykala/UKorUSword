@@ -17,44 +17,41 @@ SoloGameState createFinishedSoloGameState(SoloGameState state) =>
     SoloGameState(player: Player.finished(state.player));
 
 // DuelGameState
-DuelGameState createInitDuelGameState(String p1Name, String p2Name) => DuelGameState(
-      isPlayer1: true,
+DuelGameState createInitDuelGameState(String p1Name, String p2Name) => DuelGameState.init(
       player1: Player(name: p1Name, gameState: _initGameState()),
       player2: Player(name: p2Name, gameState: _initGameState()),
     );
 
 DuelGameState createStartNewDuelGameState(
         List<Word> p1Words, List<Word> p2Words, String p1Name, String p2Name) =>
-    DuelGameState(
-        isPlayer1: true,
+    DuelGameState.init(
         player1: Player(name: p1Name, gameState: _startNewGameState(p1Words)),
         player2: Player(name: p2Name, gameState: _startNewGameState(p2Words)));
 
 DuelGameState createCheckWordDuelGameState(
     Word word, int newScore, List<Word> remaining, DuelGameState state) {
-  if (state.isPlayer1) {
+  if (state.activePlayer == state.player1) {
+    var activePlayer = Player(
+        name: state.player1.name,
+        gameState: _checkWordGameState(word, newScore, remaining));
     return DuelGameState(
-      isPlayer1: true,
-      player1: Player(
-          name: state.player1.name,
-          gameState: _checkWordGameState(word, newScore, remaining)),
-      player2: state.player2,
-    );
+        player1: activePlayer, player2: state.player2, activePlayer: activePlayer);
   } else {
+    var activePlayer = Player(
+        name: state.player2.name,
+        gameState: _checkWordGameState(word, newScore, remaining));
     return DuelGameState(
-      isPlayer1: false,
-      player1: state.player1,
-      player2: Player(
-          name: state.player2.name,
-          gameState: _checkWordGameState(word, newScore, remaining)),
-    );
+        player1: state.player1, player2: activePlayer, activePlayer: activePlayer);
   }
 }
 
-DuelGameState createFinishedDuelGameState(DuelGameState state) => DuelGameState(
-    isPlayer1: false,
-    player1: Player.finished(state.player1),
-    player2: Player.finished(state.player2));
+DuelGameState createFinishedDuelGameState(DuelGameState state) {
+  var activePlayer = Player.finished(state.player2);
+  return DuelGameState(
+      player1: Player.finished(state.player1),
+      player2: activePlayer,
+      activePlayer: activePlayer);
+}
 
 // GameState
 GameState _initGameState() => GameState(word: null, score: 0, remainingWords: []);

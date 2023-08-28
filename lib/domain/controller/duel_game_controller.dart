@@ -37,8 +37,10 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     state = createCheckWordDuelGameState(word, newScore, gameState.remainingWords, state);
 
     // change player
+    final Player nextPlayer =
+        state.activePlayer == state.player1 ? state.player2 : state.player1;
     state = DuelGameState(
-        isPlayer1: !state.isPlayer1, player1: state.player1, player2: state.player2);
+        activePlayer: nextPlayer, player1: state.player1, player2: state.player2);
 
     _publishGameState();
   }

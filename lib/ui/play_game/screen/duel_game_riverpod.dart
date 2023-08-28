@@ -100,6 +100,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
   }
 
   Container _buildNamesRow(DuelGameState state, BuildContext context) {
+    final bool isPlayer1Active = state.activePlayer == state.player1;
     final bold = textMediumBold(context);
     final regular = textMedium(context);
     return Container(
@@ -107,8 +108,8 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(state.player1.name, style: state.isPlayer1 ? bold : regular),
-            Text(state.player2.name, style: state.isPlayer1 ? regular : bold),
+            Text(state.player1.name, style: isPlayer1Active ? bold : regular),
+            Text(state.player2.name, style: isPlayer1Active ? regular : bold),
           ],
         ));
   }
