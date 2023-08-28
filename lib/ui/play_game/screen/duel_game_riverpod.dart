@@ -29,15 +29,16 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
 
   Column _buildContentColumn(
       DuelGameState state, DuelGameController notifier, BuildContext context) {
+    var notGameOver = !state.finishedAllPlayerWords;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        _buildCurrentPlayerRow(state, context),
+        if (notGameOver) _buildCurrentPlayerRow(state, context),
         _buildTitleRow(state, context),
         _buildButtonsRow(state, notifier),
         _buildNamesRow(state, context),
         _buildScoreRow(state, context),
-        if (!state.finishedAllPlayerWords) _buildCountDownRow(state, context),
+        if (notGameOver) _buildCountDownRow(state, context),
       ],
     );
   }
