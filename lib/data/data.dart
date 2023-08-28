@@ -25,6 +25,11 @@ final class Player {
   final GameState gameState;
 
   Player({required this.name, required this.gameState});
+
+  Player.finished(Player player)
+      : name = player.name,
+        gameState =
+            GameState(word: null, score: player.gameState.score, remainingWords: []);
 }
 
 sealed class WordGameState {}
@@ -36,16 +41,20 @@ final class SoloGameState extends WordGameState {
 }
 
 final class DuelGameState extends WordGameState {
-  final bool isPlayer1;
   final Player player1;
   final Player player2;
+  final Player activePlayer;
   final bool finishedAllPlayerWords;
 
-  DuelGameState({required this.isPlayer1, required this.player1, required this.player2})
+  DuelGameState(
+      {required this.activePlayer, required this.player1, required this.player2})
       : finishedAllPlayerWords =
             player1.gameState.finishedAllWords && player2.gameState.finishedAllWords;
 
-  Player getCurrentPlayer() => isPlayer1 ? player1 : player2;
+  DuelGameState.init({required this.player1, required this.player2})
+      : activePlayer = player1,
+        finishedAllPlayerWords =
+            player1.gameState.finishedAllWords && player2.gameState.finishedAllWords;
 
-  GameState getCurrentGameState() => getCurrentPlayer().gameState;
+  GameState activeGameState() => activePlayer.gameState;
 }

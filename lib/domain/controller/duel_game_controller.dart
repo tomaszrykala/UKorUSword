@@ -30,21 +30,23 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   void onWordGuess(Word word, Locale locale) {
-    GameState gameState = state.getCurrentGameState();
-    var newScore = word.locale == locale ? gameState.score + 1 : 0;
+    GameState gameState = state.activeGameState();
+    var newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
 
     // check player guess
     state = createCheckWordDuelGameState(word, newScore, gameState.remainingWords, state);
 
     // change player
+    final Player nextPlayer =
+        state.activePlayer == state.player1 ? state.player2 : state.player1;
     state = DuelGameState(
-        isPlayer1: !state.isPlayer1, player1: state.player1, player2: state.player2);
+        activePlayer: nextPlayer, player1: state.player1, player2: state.player2);
 
     _publishGameState();
   }
 
   void _publishGameState() {
-    GameState gameState = state.getCurrentGameState();
+    GameState gameState = state.activeGameState();
     if (gameState.finishedAllWords) {
       if (gameState.hasRemainingWords) {
         _setNextWordGameState(0);
@@ -57,14 +59,14 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   void _setNextWordGameState(int newScore) {
-    GameState gameState = state.getCurrentGameState();
+    GameState gameState = state.activeGameState();
     if (gameState.hasRemainingWords) {
       var remainingWords = gameState.remainingWords;
       int index = Random().nextInt(remainingWords.length);
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(word, newScore, remainingWords, state);
     } else {
-      state = createFinishedDuelGameState(newScore, state);
+      state = createFinishedDuelGameState(state);
     }
   }
 
