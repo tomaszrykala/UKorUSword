@@ -13,8 +13,8 @@ SoloGameState createCheckWordSoloGameState(
         player:
             Player(name: "", gameState: _checkWordGameState(word, newScore, remaining)));
 
-SoloGameState createFinishedSoloGameState(int finalScore) =>
-    SoloGameState(player: Player(name: "", gameState: _finishedGameState(finalScore)));
+SoloGameState createFinishedSoloGameState(SoloGameState state) =>
+    SoloGameState(player: Player.finished(state.player));
 
 // DuelGameState
 DuelGameState createInitDuelGameState(String p1Name, String p2Name) => DuelGameState(
@@ -64,6 +64,3 @@ GameState _startNewGameState(List<Word> remaining) =>
 
 GameState _checkWordGameState(Word word, int newScore, List<Word> remaining) =>
     GameState(word: word, score: newScore, remainingWords: remaining);
-
-GameState _finishedGameState(int finalScore) =>
-    GameState(word: null, score: finalScore, remainingWords: []);

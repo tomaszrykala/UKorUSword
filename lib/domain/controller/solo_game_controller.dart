@@ -51,7 +51,7 @@ class SoloGameController extends StateNotifier<SoloGameState> {
       Word word = remainingWords.removeAt(index);
       state = createCheckWordSoloGameState(word, newScore, remainingWords);
     } else {
-      state = createFinishedSoloGameState(newScore);
+      state = createFinishedSoloGameState(state);
     }
   }
 
