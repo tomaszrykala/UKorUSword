@@ -10,11 +10,11 @@ SoloGameState createStartNewSoloGameState(List<Word> remaining) =>
 SoloGameState createCheckWordSoloGameState(
         Word word, int newScore, List<Word> remaining) =>
     SoloGameState(
-        player: Player(
-            name: "", gameState: _checkWordGameState(word, newScore, remaining)));
+        player:
+            Player(name: "", gameState: _checkWordGameState(word, newScore, remaining)));
 
-SoloGameState createFinishedSoloGameState(int finalScore) => SoloGameState(
-    player: Player(name: "", gameState: _finishedGameState(finalScore)));
+SoloGameState createFinishedSoloGameState(int finalScore) =>
+    SoloGameState(player: Player(name: "", gameState: _finishedGameState(finalScore)));
 
 // DuelGameState
 DuelGameState createInitDuelGameState(String p1Name, String p2Name) => DuelGameState(
@@ -51,15 +51,10 @@ DuelGameState createCheckWordDuelGameState(
   }
 }
 
-DuelGameState createFinishedDuelGameState(int finalScore, DuelGameState state) {
-  var player1 = state.player1;
-  return DuelGameState(
-      isPlayer1: false,
-      player1: Player(
-          name: player1.name, gameState: _finishedGameState(player1.gameState.score)),
-      player2: Player(
-          name: state.player2.name, gameState: _finishedGameState(finalScore)));
-}
+DuelGameState createFinishedDuelGameState(DuelGameState state) => DuelGameState(
+    isPlayer1: false,
+    player1: Player.finished(state.player1),
+    player2: Player.finished(state.player2));
 
 // GameState
 GameState _initGameState() => GameState(word: null, score: 0, remainingWords: []);

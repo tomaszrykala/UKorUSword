@@ -64,7 +64,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(word, newScore, remainingWords, state);
     } else {
-      state = createFinishedDuelGameState(newScore, state);
+      state = createFinishedDuelGameState(state);
     }
   }
 

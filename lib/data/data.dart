@@ -25,6 +25,11 @@ final class Player {
   final GameState gameState;
 
   Player({required this.name, required this.gameState});
+
+  Player.finished(Player player)
+      : name = player.name,
+        gameState =
+            GameState(word: null, score: player.gameState.score, remainingWords: []);
 }
 
 sealed class WordGameState {}
