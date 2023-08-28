@@ -42,15 +42,10 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
 
   Container _buildTitleRow(GameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(bottom: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            state.finishedAllWords ? 'Game Over' : 'The term is:\n`${state.word!.word}`',
-            style: textLarge(context),
-            textAlign: TextAlign.center,
-          )
-        ],
+      child: Text(
+        state.finishedAllWords ? 'Game Over' : 'The term is:\n`${state.word!.word}`',
+        style: textLarge(context),
+        textAlign: TextAlign.center,
       ));
 
   Row _buildButtonsRow(GameState state, SoloGameController notifier) {
@@ -93,14 +88,9 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
 
   Container _buildScoreRow(GameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(top: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Your score is: ${state.score}',
-            style: textSmall(context),
-          )
-        ],
+      child: Text(
+        'Your score is: ${state.score}',
+        style: textSmall(context),
       ));
 
   Container _buildCountDownRow(GameState state, BuildContext context) {

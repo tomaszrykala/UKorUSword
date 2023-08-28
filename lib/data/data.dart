@@ -36,16 +36,16 @@ final class SoloGameState extends WordGameState {
 }
 
 final class DuelGameState extends WordGameState {
-  final bool isPlayer1;
+  final bool isPlayer1; // active vs inactive player?
   final Player player1;
   final Player player2;
+  final Player activePlayer;
   final bool finishedAllPlayerWords;
 
   DuelGameState({required this.isPlayer1, required this.player1, required this.player2})
-      : finishedAllPlayerWords =
+      : activePlayer = isPlayer1 ? player1 : player2,
+        finishedAllPlayerWords =
             player1.gameState.finishedAllWords && player2.gameState.finishedAllWords;
 
-  Player getCurrentPlayer() => isPlayer1 ? player1 : player2;
-
-  GameState getCurrentGameState() => getCurrentPlayer().gameState;
+  GameState activeGameState() => activePlayer.gameState;
 }
