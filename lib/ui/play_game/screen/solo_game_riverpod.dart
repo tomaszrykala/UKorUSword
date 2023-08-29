@@ -28,29 +28,28 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
   }
 
   Column _buildContentColumn(
-      GameState state, SoloGameController notifier, BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        _buildTitleRow(state, context),
-        _buildButtonsRow(state, notifier),
-        _buildScoreRow(state, context),
-        if (!state.finishedAllWords) _buildCountDownRow(state, context),
-      ],
-    );
-  }
+          GameState state, SoloGameController notifier, BuildContext context) =>
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          _buildTitleRow(state, context),
+          _buildButtonsRow(state, notifier),
+          _buildScoreRow(state, context),
+          if (!state.isFinished) _buildCountDownRow(state, context),
+        ],
+      );
 
   Container _buildTitleRow(GameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Text(
-        state.finishedAllWords ? 'Game Over' : 'The term is:\n`${state.word!.word}`',
+        state.isFinished ? 'Game Over' : 'The term is:\n`${state.word!.word}`',
         style: textLarge(context),
         textAlign: TextAlign.center,
       ));
 
   Row _buildButtonsRow(GameState state, SoloGameController notifier) {
     const insets = 16.0;
-    if (state.finishedAllWords) {
+    if (state.isFinished) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[

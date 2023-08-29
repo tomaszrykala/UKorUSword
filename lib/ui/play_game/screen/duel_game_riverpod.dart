@@ -28,26 +28,24 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
   }
 
   Column _buildContentColumn(
-      DuelGameState state, DuelGameController notifier, BuildContext context) {
-    var notGameOver = !state.finishedAllPlayerWords;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        if (notGameOver) _buildCurrentPlayerRow(state, context),
-        _buildTitleRow(state, context),
-        _buildButtonsRow(state, notifier),
-        _buildNamesRow(state, context),
-        _buildScoreRow(state, context),
-        if (notGameOver) _buildCountDownRow(state, context),
-      ],
-    );
-  }
+          DuelGameState state, DuelGameController notifier, BuildContext context) =>
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          _buildCurrentPlayerRow(state, context),
+          _buildTitleRow(state, context),
+          _buildButtonsRow(state, notifier),
+          _buildNamesRow(state, context),
+          _buildScoreRow(state, context),
+          if (!state.isGameFinished) _buildCountDownRow(state, context),
+        ],
+      );
 
   Container _buildCurrentPlayerRow(DuelGameState state, BuildContext context) =>
       Container(
           margin: const EdgeInsets.only(bottom: 24),
           child: Text(
-            '${state.activePlayer.name}\'s turn:',
+            _currentPlayerLabel(state),
             style: textMediumBold(context),
             textAlign: TextAlign.center,
           ));
@@ -55,7 +53,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
   Container _buildTitleRow(DuelGameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Text(
-        state.finishedAllPlayerWords
+        state.isGameFinished
             ? 'Game Over'
             : 'The term is:\n`${state.activeGameState().word!.word}`',
         style: textLarge(context),
@@ -64,7 +62,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
 
   Row _buildButtonsRow(DuelGameState state, DuelGameController notifier) {
     const insets = 16.0;
-    if (state.finishedAllPlayerWords) {
+    if (state.isGameFinished) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -130,17 +128,10 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(_remaining(state.player1, true), style: textSmall(context)),
-          Text(_remaining(state.player2, false), style: textSmall(context)),
+          Text(_remainingLabel(state.player1, true), style: textSmall(context)),
+          Text(_remainingLabel(state.player2, false), style: textSmall(context)),
         ],
       ));
-
-  String _remaining(Player player, bool isPlayer1) {
-    final remaining = player.gameState.remainingWords;
-    var length = remaining.length;
-    var remainingLabel = isPlayer1 ? 'remaining [$length]' : '[$length] remaining';
-    return remaining.isEmpty ? 'Last word!' : remainingLabel;
-  }
 
   MaterialButton _buildMaterialButton(
           DuelGameController notifier, Word word, Locale locale) =>
@@ -159,4 +150,22 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         onPressed: () {},
         child: Text(locale.name),
       );
+
+  // TODO to the State
+  String _currentPlayerLabel(DuelGameState state) {
+    if (state.isGameFinished && state.winner != null) {
+      final Player? winner = state.winner!.player;
+      return winner != null ? 'The winner is ${winner.name}!' : 'It\'s a draw!';
+    } else {
+      return '${state.activePlayer.name}\'s turn:';
+    }
+  }
+
+  // TODO to the State
+  String _remainingLabel(Player player, bool isPlayer1) {
+    final remaining = player.gameState.remainingWords;
+    var length = remaining.length;
+    var remainingLabel = isPlayer1 ? 'remaining [$length]' : '[$length] remaining';
+    return remaining.isEmpty ? 'Last word!' : remainingLabel;
+  }
 }
