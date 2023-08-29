@@ -32,37 +32,110 @@ final class Player {
             GameState(word: null, score: player.gameState.score, remainingWords: []);
 }
 
-sealed class WordGameState {}
+sealed class WordGameState {
+  String _remainingLabel(Player player, bool isPlayer1) {
+    final remaining = player.gameState.remainingWords;
+    final length = remaining.length;
+    final remainingLabel = isPlayer1 ? 'remaining [$length]' : '[$length] remaining';
+    return remaining.isEmpty ? 'Last word!' : remainingLabel;
+  }
 
-final class SoloGameState extends WordGameState {
-  final Player player;
-
-  SoloGameState({required this.player});
+  String _currentPlayerLabel(DuelGameState state) {
+    if (state.isGameFinished && state._winner != null) {
+      final Player? winner = state._winner!.player;
+      return winner != null ? 'The winner is ${winner.name}!' : 'It\'s a draw!';
+    } else {
+      return '${state._activePlayer.name}\'s turn:';
+    }
+  }
 }
 
+final class SoloGameState extends WordGameState {
+  // Game State
+  final Player player;
+
+  // UI State (unused for now)
+  late String playerScoreLabel;
+  late String playerRemainingLabel;
+
+  // late String titleLabel;
+  // late bool isPlayer1Active;
+
+  SoloGameState({required this.player}) {
+    playerScoreLabel = 'score -> ${player.gameState.score}';
+    playerRemainingLabel = _remainingLabel(player, true);
+  }
+}
+
+// TODO should be mapped to DuelUiState
 final class DuelGameState extends WordGameState {
+  // Game State
   final Player player1;
   final Player player2;
-  final Player activePlayer;
   final bool isGameFinished;
-  final Winner? winner;
+
+  // Private State
+  final Player _activePlayer;
+  final Winner? _winner;
+
+  // UI State
+  late String player1NameLabel;
+  late String player2NameLabel;
+  late String player1ScoreLabel;
+  late String player2ScoreLabel;
+  late String player1RemainingLabel;
+  late String player2RemainingLabel;
+  late String currentPlayerLabel;
+  late String titleLabel;
+  late bool isPlayer1Active;
 
   DuelGameState(
-      {required this.activePlayer, required this.player1, required this.player2})
-      : isGameFinished = player1.gameState.isFinished && player2.gameState.isFinished,
-        winner = null;
+      {required Player activePlayer, required this.player1, required this.player2})
+      : _activePlayer = activePlayer,
+        isGameFinished = player1.gameState.isFinished && player2.gameState.isFinished,
+        _winner = null {
+    _mapUiLabels();
+  }
 
   DuelGameState.init({required this.player1, required this.player2})
-      : activePlayer = player1,
+      : _activePlayer = player1,
         isGameFinished = player1.gameState.isFinished && player2.gameState.isFinished,
-        winner = null;
+        _winner = null {
+    _mapUiLabels();
+  }
 
   DuelGameState.finished(
-      {required this.player1, required this.player2, required this.winner})
-      : activePlayer = player2,
-        isGameFinished = true;
+      {required this.player1, required this.player2, required Winner? winner})
+      : _winner = winner,
+        _activePlayer = player2,
+        isGameFinished = true {
+    _mapUiLabels();
+  }
 
-  GameState activeGameState() => activePlayer.gameState;
+  void _mapUiLabels() {
+    player1RemainingLabel = _remainingLabel(player1, true);
+    player2RemainingLabel = _remainingLabel(player2, false);
+    player1ScoreLabel = 'score -> ${player1.gameState.score}';
+    player2ScoreLabel = '${player2.gameState.score} <- score';
+    player1NameLabel = player1.name;
+    player2NameLabel = player2.name;
+    currentPlayerLabel = _currentPlayerLabel(this);
+    isPlayer1Active = _activePlayer == player1;
+    titleLabel = _mapTitle();
+  }
+
+  String _mapTitle() {
+    final currentWord = activeGameState().word;
+    if (currentWord != null) {
+      return 'The term is:\n`${currentWord.word}`';
+    } else if (isGameFinished) {
+      return 'Game Over';
+    } else {
+      return '';
+    }
+  }
+
+  GameState activeGameState() => _activePlayer.gameState;
 }
 
 final class Winner {

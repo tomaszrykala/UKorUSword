@@ -30,15 +30,15 @@ DuelGameState createStartNewDuelGameState(
 
 DuelGameState createCheckWordDuelGameState(
     Word word, int newScore, List<Word> remaining, DuelGameState state) {
-  if (state.activePlayer == state.player1) {
+  if (state.isPlayer1Active) {
     var activePlayer = Player(
-        name: state.player1.name,
+        name: state.player1NameLabel,
         gameState: _checkWordGameState(word, newScore, remaining));
     return DuelGameState(
         player1: activePlayer, player2: state.player2, activePlayer: activePlayer);
   } else {
     var activePlayer = Player(
-        name: state.player2.name,
+        name: state.player2NameLabel,
         gameState: _checkWordGameState(word, newScore, remaining));
     return DuelGameState(
         player1: state.player1, player2: activePlayer, activePlayer: activePlayer);

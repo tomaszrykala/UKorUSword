@@ -31,14 +31,13 @@ class DuelGameController extends StateNotifier<DuelGameState> {
 
   void onWordGuess(Word word, Locale locale) {
     GameState gameState = state.activeGameState();
-    var newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
+    final newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
 
     // check player guess
     state = createCheckWordDuelGameState(word, newScore, gameState.remainingWords, state);
 
     // change player
-    final Player nextPlayer =
-        state.activePlayer == state.player1 ? state.player2 : state.player1;
+    final Player nextPlayer = state.isPlayer1Active ? state.player2 : state.player1;
     state = DuelGameState(
         activePlayer: nextPlayer, player1: state.player1, player2: state.player2);
 
@@ -61,24 +60,12 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   void _setNextWordGameState(int newScore) {
     GameState gameState = state.activeGameState();
     if (gameState.hasMoreWords) {
-      var remainingWords = gameState.remainingWords;
+      final remainingWords = gameState.remainingWords;
       int index = Random().nextInt(remainingWords.length);
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(word, newScore, remainingWords, state);
     } else {
-      state = createFinishedDuelGameState(state, _getWinner());
-    }
-  }
-
-  Winner _getWinner() {
-    final winnerScore =
-        state.player1.gameState.score.compareTo(state.player2.gameState.score);
-    if (winnerScore > 0) {
-      return Winner(player: state.player1);
-    } else if (winnerScore < 0) {
-      return Winner(player: state.player2);
-    } else {
-      return Winner(player: null);
+      state = createFinishedDuelGameState(state, _getWinnerLabel());
     }
   }
 
@@ -91,5 +78,17 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     final List<List<Word>> gameWords = _gameWordsFactory.getNewGameWords(2);
     state = createStartNewDuelGameState(gameWords[0], gameWords[1], _p1Name, _p2Name);
     _publishGameState();
+  }
+
+  Winner _getWinnerLabel() {
+    final winnerScore =
+        state.player1.gameState.score.compareTo(state.player2.gameState.score);
+    if (winnerScore > 0) {
+      return Winner(player: state.player1);
+    } else if (winnerScore < 0) {
+      return Winner(player: state.player2);
+    } else {
+      return Winner(player: null);
+    }
   }
 }
