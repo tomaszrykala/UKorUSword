@@ -32,8 +32,8 @@ class SoloGameController extends StateNotifier<SoloGameState> {
 
   void _publishGameState() {
     var gameState = state.player.gameState;
-    if (gameState.finishedAllWords) {
-      if (gameState.hasRemainingWords) {
+    if (gameState.isFinished) {
+      if (gameState.hasMoreWords) {
         _setNextWordGameState(0);
       } else {
         _resetGameState();
@@ -45,7 +45,7 @@ class SoloGameController extends StateNotifier<SoloGameState> {
 
   void _setNextWordGameState(int newScore) {
     var gameState = state.player.gameState;
-    if (gameState.hasRemainingWords) {
+    if (gameState.hasMoreWords) {
       var remainingWords = gameState.remainingWords;
       int index = Random().nextInt(remainingWords.length);
       Word word = remainingWords.removeAt(index);

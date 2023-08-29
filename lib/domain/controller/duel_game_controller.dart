@@ -47,8 +47,8 @@ class DuelGameController extends StateNotifier<DuelGameState> {
 
   void _publishGameState() {
     GameState gameState = state.activeGameState();
-    if (gameState.finishedAllWords) {
-      if (gameState.hasRemainingWords) {
+    if (gameState.isFinished) {
+      if (gameState.hasMoreWords) {
         _setNextWordGameState(0);
       } else {
         _resetGameState();
@@ -60,13 +60,25 @@ class DuelGameController extends StateNotifier<DuelGameState> {
 
   void _setNextWordGameState(int newScore) {
     GameState gameState = state.activeGameState();
-    if (gameState.hasRemainingWords) {
+    if (gameState.hasMoreWords) {
       var remainingWords = gameState.remainingWords;
       int index = Random().nextInt(remainingWords.length);
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(word, newScore, remainingWords, state);
     } else {
-      state = createFinishedDuelGameState(state);
+      state = createFinishedDuelGameState(state, _getWinner());
+    }
+  }
+
+  Winner _getWinner() {
+    final winnerScore =
+        state.player1.gameState.score.compareTo(state.player2.gameState.score);
+    if (winnerScore > 0) {
+      return Winner(player: state.player1);
+    } else if (winnerScore < 0) {
+      return Winner(player: state.player2);
+    } else {
+      return Winner(player: null);
     }
   }
 

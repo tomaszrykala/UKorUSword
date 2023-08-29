@@ -45,13 +45,11 @@ DuelGameState createCheckWordDuelGameState(
   }
 }
 
-DuelGameState createFinishedDuelGameState(DuelGameState state) {
-  var activePlayer = Player.finished(state.player2);
-  return DuelGameState(
-      player1: Player.finished(state.player1),
-      player2: activePlayer,
-      activePlayer: activePlayer);
-}
+DuelGameState createFinishedDuelGameState(DuelGameState state, Winner winner) =>
+    DuelGameState.finished(
+        player1: Player.finished(state.player1),
+        player2: Player.finished(state.player2),
+        winner: winner);
 
 // GameState
 GameState _initGameState() => GameState(word: null, score: 0, remainingWords: []);
