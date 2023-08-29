@@ -29,19 +29,21 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     _createStartGameState();
   }
 
-  void onWordGuess(Word word, Locale locale) {
-    GameState gameState = state.activeGameState();
-    final newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
+  void onWordGuess(Locale locale) {
+    final word = state.currentWord;
+    if (word != null) {
+      GameState gameState = state.activeGameState();
+      final newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
 
-    // check player guess
-    state = createCheckWordDuelGameState(word, newScore, gameState.remainingWords, state);
+      // check player guess
+      state =
+          createCheckWordDuelGameState(word, newScore, gameState.remainingWords, state);
 
-    // change player
-    final Player nextPlayer = state.isPlayer1Active ? state.player2 : state.player1;
-    state = DuelGameState(
-        activePlayer: nextPlayer, player1: state.player1, player2: state.player2);
+      // change player
+      state = DuelGameState.nextPlayer(state);
 
-    _publishGameState();
+      _publishGameState();
+    }
   }
 
   void _publishGameState() {
@@ -81,6 +83,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   Winner _getWinnerLabel() {
+    // could go to factory
     final winnerScore =
         state.player1.gameState.score.compareTo(state.player2.gameState.score);
     if (winnerScore > 0) {

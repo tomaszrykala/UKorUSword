@@ -79,6 +79,7 @@ final class DuelGameState extends WordGameState {
   final Winner? _winner;
 
   // UI State
+  late Word? currentWord;
   late String player1NameLabel;
   late String player2NameLabel;
   late String player1ScoreLabel;
@@ -89,17 +90,26 @@ final class DuelGameState extends WordGameState {
   late String titleLabel;
   late bool isPlayer1Active;
 
-  DuelGameState(
-      {required Player activePlayer, required this.player1, required this.player2})
-      : _activePlayer = activePlayer,
-        isGameFinished = player1.gameState.isFinished && player2.gameState.isFinished,
+  DuelGameState.init({required this.player1, required this.player2})
+      : _activePlayer = player1,
+        isGameFinished = _isFinished(player1, player2),
         _winner = null {
     _mapUiLabels();
   }
 
-  DuelGameState.init({required this.player1, required this.player2})
-      : _activePlayer = player1,
-        isGameFinished = player1.gameState.isFinished && player2.gameState.isFinished,
+  DuelGameState.updatePlayer(
+      {required Player activePlayer, required this.player1, required this.player2})
+      : _activePlayer = activePlayer,
+        isGameFinished = _isFinished(player1, player2),
+        _winner = null {
+    _mapUiLabels();
+  }
+
+  DuelGameState.nextPlayer(DuelGameState fromState)
+      : _activePlayer = fromState.isPlayer1Active ? fromState.player2 : fromState.player1,
+        player1 = fromState.player1,
+        player2 = fromState.player2,
+        isGameFinished = _isFinished(fromState.player1, fromState.player2),
         _winner = null {
     _mapUiLabels();
   }
@@ -112,7 +122,11 @@ final class DuelGameState extends WordGameState {
     _mapUiLabels();
   }
 
+  static bool _isFinished(Player player1, Player player2) =>
+      player1.gameState.isFinished && player2.gameState.isFinished;
+
   void _mapUiLabels() {
+    currentWord = _activePlayer.gameState.word;
     player1RemainingLabel = _remainingLabel(player1, true);
     player2RemainingLabel = _remainingLabel(player2, false);
     player1ScoreLabel = 'score -> ${player1.gameState.score}';
@@ -125,9 +139,8 @@ final class DuelGameState extends WordGameState {
   }
 
   String _mapTitle() {
-    final currentWord = activeGameState().word;
     if (currentWord != null) {
-      return 'The term is:\n`${currentWord.word}`';
+      return 'The term is:\n`${currentWord!.word}`';
     } else if (isGameFinished) {
       return 'Game Over';
     } else {

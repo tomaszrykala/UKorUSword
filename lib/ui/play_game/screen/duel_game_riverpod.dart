@@ -78,16 +78,15 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         ],
       );
     } else {
-      var word = state.activeGameState().word!;
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: _buildMaterialButton(notifier, word, Locale.UK)),
+              child: _buildMaterialButton(notifier, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: _buildMaterialButton(notifier, word, Locale.US))
+              child: _buildMaterialButton(notifier, Locale.US))
         ],
       );
     }
@@ -127,13 +126,12 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         ],
       ));
 
-  MaterialButton _buildMaterialButton(
-          DuelGameController notifier, Word word, Locale locale) =>
+  MaterialButton _buildMaterialButton(DuelGameController notifier, Locale locale) =>
       MaterialButton(
         height: buttonHeight,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
-          notifier.onWordGuess(word, locale);
+            notifier.onWordGuess(locale);
         },
         child: Text(locale.name),
       );
