@@ -1,22 +1,28 @@
 UK or US word?
 ==========
 
-Little beginner level Flutter playground. Guessing whether a term is UK or US English.
+**Simple game about guessing the origin of English words, with Solo and Duel modes.**
 
-As a foreign (Polish) born English speaker, the struggle is real.
+Built as a Flutter learning side project, the game runs on iOS and Android.
 
-Usage
+Play modes
 ---------------
 
-https://github.com/tomaszrykala/UKorUSword/assets/4431669/38faee11-7288-40b1-ad32-d91476b741a8
+**Solo:**
 
+https://github.com/tomaszrykala/UKorUSword/assets/4431669/34380fc7-888a-4b38-ba12-7f4d4c6db116
 
-// TODO
+**Duel:**
+
+https://github.com/tomaszrykala/UKorUSword/assets/4431669/11447ec1-4d01-4cf0-bf51-cebf506c81e9
+
 
 Implementation
 --------------
 
-// TODO
+- Flutter
+- Dart
+- Riverpod
 
 Contributions
 -------------
