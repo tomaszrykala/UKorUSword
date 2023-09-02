@@ -132,7 +132,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         height: buttonHeight,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
-            notifier.onWordGuess(locale);
+          notifier.onWordGuess(locale);
         },
         child: Text(locale.name),
       );

@@ -24,15 +24,20 @@ class SoloGameController extends StateNotifier<SoloGameState> {
     _createStartGameState();
   }
 
-  void onWordGuess(Word word, Locale locale) {
-    var gameState = state.player.gameState;
-    var newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
-    state = createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
-    _publishGameState();
+  void onWordGuess(Locale locale) {
+    final word = state.currentWord();
+    if (word != null) {
+      var gameState = state.player.gameState;
+      var newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
+
+      state = createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
+
+      _publishGameState();
+    }
   }
 
   void _publishGameState() {
-    var gameState = state.player.gameState;
+    final gameState = state.player.gameState;
     if (gameState.isFinished) {
       if (gameState.hasMoreWords) {
         _setNextWordGameState(0);

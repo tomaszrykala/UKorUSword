@@ -31,7 +31,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   void onWordGuess(Locale locale) {
-    final word = state.currentWord;
+    final word = state.currentWord();
     if (word != null) {
       GameState gameState = state.activeGameState();
       final newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
@@ -48,7 +48,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
   }
 
   void _publishGameState() {
-    GameState gameState = state.activeGameState();
+    final gameState = state.activeGameState();
     if (gameState.isFinished) {
       if (gameState.hasMoreWords) {
         _setNextWordGameState(0);

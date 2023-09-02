@@ -18,39 +18,35 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
     final provider = _controller.stateProvider;
     final SoloGameController notifier = ref.read(provider.notifier);
     final SoloGameState state = ref.watch(provider);
-    final GameState gameState = state.player.gameState;
 
     return Scaffold(
         appBar: AppBar(
           backgroundColor: appBarColor(context),
           title: Text(title),
         ),
-        body: Center(child: _buildContentColumn(gameState, notifier, context)));
+        body: Center(child: _buildContentColumn(state, notifier, context)));
   }
 
   Column _buildContentColumn(
-          GameState state, SoloGameController notifier, BuildContext context) =>
+          SoloGameState state, SoloGameController notifier, BuildContext context) =>
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           _buildTitleRow(state, context),
           _buildButtonsRow(state, notifier),
           _buildScoreRow(state, context),
-          if (!state.isFinished) _buildCountDownRow(state, context),
+          if (state.showCountDownRow) _buildCountDownRow(state, context),
         ],
       );
 
-  Container _buildTitleRow(GameState state, BuildContext context) => Container(
+  Container _buildTitleRow(SoloGameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(bottom: 24),
-      child: Text(
-        state.isFinished ? 'Game Over' : 'The term is:\n`${state.word!.word}`',
-        style: textLarge(context),
-        textAlign: TextAlign.center,
-      ));
+      child:
+          Text(state.titleLabel, style: textLarge(context), textAlign: TextAlign.center));
 
-  Row _buildButtonsRow(GameState state, SoloGameController notifier) {
+  Row _buildButtonsRow(SoloGameState state, SoloGameController notifier) {
     const insets = 16.0;
-    if (state.isFinished) {
+    if (state.showGameFinishedState) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -71,43 +67,34 @@ class SoloPlayGameRiverpod extends ConsumerWidget {
         ],
       );
     } else {
-      var word = state.word!;
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: _buildMaterialButton(notifier, word, Locale.UK)),
+              child: _buildMaterialButton(notifier, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: _buildMaterialButton(notifier, word, Locale.US))
+              child: _buildMaterialButton(notifier, Locale.US))
         ],
       );
     }
   }
 
-  Container _buildScoreRow(GameState state, BuildContext context) => Container(
+  Container _buildScoreRow(SoloGameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(top: 24),
-      child: Text(
-        'Your score is: ${state.score}',
-        style: textSmall(context),
-      ));
+      child: Text(state.playerScoreLabel, style: textSmall(context)));
 
-  Container _buildCountDownRow(GameState state, BuildContext context) {
-    var remaining = state.remainingWords;
-    var text = remaining.isEmpty ? 'Last word!' : 'Remaining words: ${remaining.length}.';
-    return Container(
-        margin: const EdgeInsets.only(top: 24),
-        child: Text(text, style: textSmall(context)));
-  }
+  Container _buildCountDownRow(SoloGameState state, BuildContext context) => Container(
+      margin: const EdgeInsets.only(top: 24),
+      child: Text(state.playerRemainingLabel, style: textSmall(context)));
 
-  MaterialButton _buildMaterialButton(
-          SoloGameController notifier, Word word, Locale locale) =>
+  MaterialButton _buildMaterialButton(SoloGameController notifier, Locale locale) =>
       MaterialButton(
         height: buttonHeight,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
-          notifier.onWordGuess(word, locale);
+          notifier.onWordGuess(locale);
         },
         child: Text(locale.name),
       );
