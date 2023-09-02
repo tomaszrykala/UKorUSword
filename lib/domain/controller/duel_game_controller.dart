@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/word_game_state.dart';
 import '../../di/game_module.dart';
 import '../../data/data.dart';
 import '../factory/game_state_factory.dart';
@@ -67,7 +68,7 @@ class DuelGameController extends StateNotifier<DuelGameState> {
       Word word = remainingWords.removeAt(index);
       state = createCheckWordDuelGameState(word, newScore, remainingWords, state);
     } else {
-      state = createFinishedDuelGameState(state, _getWinnerLabel());
+      state = createFinishedDuelGameState(state);
     }
   }
 
@@ -80,18 +81,5 @@ class DuelGameController extends StateNotifier<DuelGameState> {
     final List<List<Word>> gameWords = _gameWordsFactory.getNewGameWords(2);
     state = createStartNewDuelGameState(gameWords[0], gameWords[1], _p1Name, _p2Name);
     _publishGameState();
-  }
-
-  Winner _getWinnerLabel() {
-    // could go to factory
-    final winnerScore =
-        state.player1.gameState.score.compareTo(state.player2.gameState.score);
-    if (winnerScore > 0) {
-      return Winner(player: state.player1);
-    } else if (winnerScore < 0) {
-      return Winner(player: state.player2);
-    } else {
-      return Winner(player: null);
-    }
   }
 }

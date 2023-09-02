@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/word_game_state.dart';
 import '../../styles.dart';
 import '../../../domain/controller/duel_game_controller.dart';
 import '../../../data/data.dart';
@@ -37,7 +38,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
           _buildButtonsRow(state, notifier),
           _buildNamesRow(state, context),
           _buildScoreRow(state, context),
-          if (!state.isGameFinished) _buildCountDownRow(state, context),
+          if (state.showCountDownRow) _buildCountDownRow(state, context),
         ],
       );
 
@@ -57,7 +58,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
 
   Row _buildButtonsRow(DuelGameState state, DuelGameController notifier) {
     const insets = 16.0;
-    if (state.isGameFinished) {
+    if (state.showGameFinishedState) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[

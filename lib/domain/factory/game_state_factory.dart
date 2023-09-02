@@ -1,4 +1,5 @@
 import '../../data/data.dart';
+import '../../data/word_game_state.dart';
 
 // SoloGameState
 SoloGameState createInitSoloGameState() =>
@@ -45,11 +46,11 @@ DuelGameState createCheckWordDuelGameState(
   }
 }
 
-DuelGameState createFinishedDuelGameState(DuelGameState state, Winner winner) =>
+DuelGameState createFinishedDuelGameState(DuelGameState state) =>
     DuelGameState.finished(
         player1: Player.finished(state.player1),
         player2: Player.finished(state.player2),
-        winner: winner);
+        winner: _getWinnerLabel(state.player1, state.player2));
 
 // GameState
 GameState _initGameState() => GameState(word: null, score: 0, remainingWords: []);
@@ -59,3 +60,14 @@ GameState _startNewGameState(List<Word> remaining) =>
 
 GameState _checkWordGameState(Word word, int newScore, List<Word> remaining) =>
     GameState(word: word, score: newScore, remainingWords: remaining);
+
+Winner _getWinnerLabel(Player player1, Player player2) {
+  final winnerScore = player1.gameState.score.compareTo(player2.gameState.score);
+  if (winnerScore > 0) {
+    return Winner(player: player1);
+  } else if (winnerScore < 0) {
+    return Winner(player: player2);
+  } else {
+    return Winner(player: null);
+  }
+}

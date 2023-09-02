@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/word_game_state.dart';
 import '../../styles.dart';
 import '../../../domain/controller/solo_game_controller.dart';
 import '../../../data/data.dart';

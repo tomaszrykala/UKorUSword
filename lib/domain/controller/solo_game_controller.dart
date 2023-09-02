@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/word_game_state.dart';
 import '../../di/game_module.dart';
 import '../../data/data.dart';
 import '../factory/game_state_factory.dart';
