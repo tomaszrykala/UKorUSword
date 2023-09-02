@@ -1,6 +1,11 @@
 import 'data.dart';
 
 sealed class _WordGameState {
+  final Word? currentWord;
+  final bool _isGameFinished;
+
+  _WordGameState(this.currentWord, this._isGameFinished);
+
   String _remainingLabel(Player player, bool isPlayer1) {
     final remaining = player.gameState.remainingWords;
     final length = remaining.length;
@@ -11,15 +16,6 @@ sealed class _WordGameState {
   String _playerScoreLabel(Player player, bool isPlayer1) {
     var score = player.gameState.score;
     return isPlayer1 ? 'score -> $score' : '$score <- score';
-  }
-
-  String _currentPlayerLabel(DuelGameState state) {
-    if (state._isGameFinished && state._winner != null) {
-      final Player? winner = state._winner!.player;
-      return winner != null ? 'The winner is ${winner.name}!' : 'It\'s a draw!';
-    } else {
-      return '${state._activePlayer.name}\'s turn:';
-    }
   }
 
   String _mapTitle(Word? currentWord, bool isGameFinished) {
@@ -37,10 +33,6 @@ final class SoloGameState extends _WordGameState {
   // Game State
   final Player player;
 
-  // Private State
-  final bool _isGameFinished;
-  final Word? _currentWord;
-
   // UI State
   late String playerRemainingLabel;
   late String playerScoreLabel;
@@ -49,8 +41,7 @@ final class SoloGameState extends _WordGameState {
   late bool showGameFinishedState;
 
   SoloGameState({required this.player})
-      : _currentWord = player.gameState.word,
-        _isGameFinished = player.gameState.isFinished {
+      : super(player.gameState.word, player.gameState.isFinished) {
     _mapUiLabels();
   }
 
@@ -59,10 +50,8 @@ final class SoloGameState extends _WordGameState {
     playerScoreLabel = _playerScoreLabel(player, true);
     showCountDownRow = !_isGameFinished;
     showGameFinishedState = _isGameFinished;
-    titleLabel = _mapTitle(_currentWord, _isGameFinished);
+    titleLabel = _mapTitle(currentWord, _isGameFinished);
   }
-
-  Word? currentWord() => _currentWord;
 }
 
 final class DuelGameState extends _WordGameState {
@@ -72,8 +61,6 @@ final class DuelGameState extends _WordGameState {
 
   // Private State
   final Player _activePlayer;
-  final bool _isGameFinished;
-  final Word? _currentWord;
   final Winner? _winner;
 
   // UI State
@@ -91,30 +78,29 @@ final class DuelGameState extends _WordGameState {
 
   DuelGameState.init({required this.player1, required this.player2})
       : _activePlayer = player1,
-        _currentWord = player1.gameState.word,
-        _isGameFinished = _isFinished(player1, player2),
-        _winner = null {
+        _winner = null,
+        super(player1.gameState.word, _isFinished(player1, player2)) {
     _mapUiLabels();
   }
 
   DuelGameState.updatePlayer(
       {required Player activePlayer, required this.player1, required this.player2})
       : _activePlayer = activePlayer,
-        _currentWord = activePlayer.gameState.word,
-        _isGameFinished = _isFinished(player1, player2),
-        _winner = null {
+        _winner = null,
+        super(activePlayer.gameState.word, _isFinished(player1, player2)) {
     _mapUiLabels();
   }
 
   DuelGameState.nextPlayer(DuelGameState fromState)
       : _activePlayer = fromState.isPlayer1Active ? fromState.player2 : fromState.player1,
-        _currentWord = fromState.isPlayer1Active
-            ? fromState.player2.gameState.word
-            : fromState.player1.gameState.word,
         player1 = fromState.player1,
         player2 = fromState.player2,
-        _isGameFinished = _isFinished(fromState.player1, fromState.player2),
-        _winner = null {
+        _winner = null,
+        super(
+            fromState.isPlayer1Active
+                ? fromState.player2.gameState.word
+                : fromState.player1.gameState.word,
+            _isFinished(fromState.player1, fromState.player2)) {
     _mapUiLabels();
   }
 
@@ -122,8 +108,7 @@ final class DuelGameState extends _WordGameState {
       {required this.player1, required this.player2, required Winner winner})
       : _winner = winner,
         _activePlayer = player2,
-        _currentWord = player2.gameState.word,
-        _isGameFinished = true {
+        super(player2.gameState.word, true) {
     _mapUiLabels();
   }
 
@@ -141,12 +126,19 @@ final class DuelGameState extends _WordGameState {
     isPlayer1Active = _activePlayer == player1;
     showCountDownRow = !_isGameFinished;
     showGameFinishedState = _isGameFinished;
-    titleLabel = _mapTitle(_currentWord, _isGameFinished);
+    titleLabel = _mapTitle(currentWord, _isGameFinished);
   }
 
   GameState activeGameState() => _activePlayer.gameState;
 
-  Word? currentWord() => _currentWord;
+  String _currentPlayerLabel(DuelGameState state) {
+    if (state._isGameFinished && state._winner != null) {
+      final Player? winner = state._winner!.player;
+      return winner != null ? 'The winner is ${winner.name}!' : 'It\'s a draw!';
+    } else {
+      return '${state._activePlayer.name}\'s turn:';
+    }
+  }
 }
 
 final class Winner {

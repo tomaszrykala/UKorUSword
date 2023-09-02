@@ -25,7 +25,7 @@ class SoloGameController extends StateNotifier<SoloGameState> {
   }
 
   void onWordGuess(Locale locale) {
-    final word = state.currentWord();
+    final word = state.currentWord;
     if (word != null) {
       var gameState = state.player.gameState;
       var newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
