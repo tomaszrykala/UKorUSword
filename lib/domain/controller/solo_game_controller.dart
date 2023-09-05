@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/word_game_state.dart';
 import '../../di/game_module.dart';
 import '../../data/data.dart';
 import '../factory/game_state_factory.dart';
@@ -23,15 +24,20 @@ class SoloGameController extends StateNotifier<SoloGameState> {
     _createStartGameState();
   }
 
-  void onWordGuess(Word word, Locale locale) {
-    var gameState = state.player.gameState;
-    var newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
-    state = createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
-    _publishGameState();
+  void onWordGuess(Locale locale) {
+    final word = state.currentWord;
+    if (word != null) {
+      var gameState = state.player.gameState;
+      var newScore = word.locale == locale ? gameState.score + 1 : gameState.score;
+
+      state = createCheckWordSoloGameState(word, newScore, gameState.remainingWords);
+
+      _publishGameState();
+    }
   }
 
   void _publishGameState() {
-    var gameState = state.player.gameState;
+    final gameState = state.player.gameState;
     if (gameState.isFinished) {
       if (gameState.hasMoreWords) {
         _setNextWordGameState(0);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/word_game_state.dart';
 import '../../styles.dart';
 import '../../../domain/controller/duel_game_controller.dart';
 import '../../../data/data.dart';
@@ -37,7 +38,7 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
           _buildButtonsRow(state, notifier),
           _buildNamesRow(state, context),
           _buildScoreRow(state, context),
-          if (!state.isGameFinished) _buildCountDownRow(state, context),
+          if (state.showCountDownRow) _buildCountDownRow(state, context),
         ],
       );
 
@@ -45,24 +46,19 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
       Container(
           margin: const EdgeInsets.only(bottom: 24),
           child: Text(
-            _currentPlayerLabel(state),
+            state.currentPlayerLabel,
             style: textMediumBold(context),
             textAlign: TextAlign.center,
           ));
 
   Container _buildTitleRow(DuelGameState state, BuildContext context) => Container(
       margin: const EdgeInsets.only(bottom: 24),
-      child: Text(
-        state.isGameFinished
-            ? 'Game Over'
-            : 'The term is:\n`${state.activeGameState().word!.word}`',
-        style: textLarge(context),
-        textAlign: TextAlign.center,
-      ));
+      child:
+          Text(state.titleLabel, style: textLarge(context), textAlign: TextAlign.center));
 
   Row _buildButtonsRow(DuelGameState state, DuelGameController notifier) {
     const insets = 16.0;
-    if (state.isGameFinished) {
+    if (state.showGameFinishedState) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -83,23 +79,21 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         ],
       );
     } else {
-      var word = state.activeGameState().word!;
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
               margin: const EdgeInsets.all(insets),
-              child: _buildMaterialButton(notifier, word, Locale.UK)),
+              child: _buildMaterialButton(notifier, Locale.UK)),
           Container(
               margin: const EdgeInsets.all(insets),
-              child: _buildMaterialButton(notifier, word, Locale.US))
+              child: _buildMaterialButton(notifier, Locale.US))
         ],
       );
     }
   }
 
   Container _buildNamesRow(DuelGameState state, BuildContext context) {
-    final bool isPlayer1Active = state.activePlayer == state.player1;
     final bold = textMediumBold(context);
     final regular = textMedium(context);
     return Container(
@@ -107,8 +101,8 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(state.player1.name, style: isPlayer1Active ? bold : regular),
-            Text(state.player2.name, style: isPlayer1Active ? regular : bold),
+            Text(state.player1NameLabel, style: state.isPlayer1Active ? bold : regular),
+            Text(state.player2NameLabel, style: state.isPlayer1Active ? regular : bold),
           ],
         ));
   }
@@ -118,8 +112,8 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text('score -> ${state.player1.gameState.score}', style: textSmall(context)),
-          Text('${state.player2.gameState.score} <- score', style: textSmall(context)),
+          Text(state.player1ScoreLabel, style: textSmall(context)),
+          Text(state.player2ScoreLabel, style: textSmall(context)),
         ],
       ));
 
@@ -128,18 +122,17 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(_remainingLabel(state.player1, true), style: textSmall(context)),
-          Text(_remainingLabel(state.player2, false), style: textSmall(context)),
+          Text(state.player1RemainingLabel, style: textSmall(context)),
+          Text(state.player2RemainingLabel, style: textSmall(context)),
         ],
       ));
 
-  MaterialButton _buildMaterialButton(
-          DuelGameController notifier, Word word, Locale locale) =>
+  MaterialButton _buildMaterialButton(DuelGameController notifier, Locale locale) =>
       MaterialButton(
         height: buttonHeight,
         color: locale == Locale.UK ? Colors.redAccent : Colors.lightBlueAccent,
         onPressed: () {
-          notifier.onWordGuess(word, locale);
+          notifier.onWordGuess(locale);
         },
         child: Text(locale.name),
       );
@@ -150,22 +143,4 @@ class DuelPlayGameRiverpod extends ConsumerWidget {
         onPressed: () {},
         child: Text(locale.name),
       );
-
-  // TODO to the State
-  String _currentPlayerLabel(DuelGameState state) {
-    if (state.isGameFinished && state.winner != null) {
-      final Player? winner = state.winner!.player;
-      return winner != null ? 'The winner is ${winner.name}!' : 'It\'s a draw!';
-    } else {
-      return '${state.activePlayer.name}\'s turn:';
-    }
-  }
-
-  // TODO to the State
-  String _remainingLabel(Player player, bool isPlayer1) {
-    final remaining = player.gameState.remainingWords;
-    var length = remaining.length;
-    var remainingLabel = isPlayer1 ? 'remaining [$length]' : '[$length] remaining';
-    return remaining.isEmpty ? 'Last word!' : remainingLabel;
-  }
 }
