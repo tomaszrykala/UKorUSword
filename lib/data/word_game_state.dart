@@ -1,21 +1,30 @@
 import 'data.dart';
 
-sealed class _WordGameState {
+sealed class WordGameState {
   final Word? currentWord;
   final bool _isGameFinished;
 
-  _WordGameState(this.currentWord, this._isGameFinished);
+  WordGameState(this.currentWord, this._isGameFinished);
 
-  String _remainingLabel(Player player, bool isPlayer1) {
+  String _remainingLabel(Player player, bool isPlayer1, bool isDuelMode) {
     final remaining = player.gameState.remainingWords;
     final length = remaining.length;
-    final remainingLabel = isPlayer1 ? 'remaining [$length]' : '[$length] remaining';
+    final String remainingLabel;
+    if (isDuelMode) {
+      remainingLabel = isPlayer1 ? 'remaining [$length]' : '[$length] remaining';
+    } else {
+      remainingLabel = 'Remaining words: $length';
+    }
     return remaining.isEmpty ? 'Last word!' : remainingLabel;
   }
 
-  String _playerScoreLabel(Player player, bool isPlayer1) {
+  String _playerScoreLabel(Player player, bool isPlayer1, bool isDuelMode) {
     var score = player.gameState.score;
-    return isPlayer1 ? 'score -> $score' : '$score <- score';
+    if (isDuelMode) {
+      return isPlayer1 ? 'score -> $score' : '$score <- score';
+    } else {
+      return 'Your score is: $score';
+    }
   }
 
   String _mapTitle(Word? currentWord, bool isGameFinished) {
@@ -29,7 +38,7 @@ sealed class _WordGameState {
   }
 }
 
-final class SoloGameState extends _WordGameState {
+final class SoloGameState extends WordGameState {
   // Game State
   final Player player;
 
@@ -46,15 +55,15 @@ final class SoloGameState extends _WordGameState {
   }
 
   void _mapUiLabels() {
-    playerRemainingLabel = _remainingLabel(player, true);
-    playerScoreLabel = _playerScoreLabel(player, true);
+    playerRemainingLabel = _remainingLabel(player, true, false);
+    playerScoreLabel = _playerScoreLabel(player, true, false);
     showCountDownRow = !_isGameFinished;
     showGameFinishedState = _isGameFinished;
     titleLabel = _mapTitle(currentWord, _isGameFinished);
   }
 }
 
-final class DuelGameState extends _WordGameState {
+final class DuelGameState extends WordGameState {
   // Game State
   final Player player1;
   final Player player2;
@@ -116,10 +125,10 @@ final class DuelGameState extends _WordGameState {
       player1.gameState.isFinished && player2.gameState.isFinished;
 
   void _mapUiLabels() {
-    player1RemainingLabel = _remainingLabel(player1, true);
-    player2RemainingLabel = _remainingLabel(player2, false);
-    player1ScoreLabel = _playerScoreLabel(player1, true);
-    player2ScoreLabel = _playerScoreLabel(player2, false);
+    player1RemainingLabel = _remainingLabel(player1, true, true);
+    player2RemainingLabel = _remainingLabel(player2, false, true);
+    player1ScoreLabel = _playerScoreLabel(player1, true, true);
+    player2ScoreLabel = _playerScoreLabel(player2, false, true);
     player1NameLabel = player1.name;
     player2NameLabel = player2.name;
     currentPlayerLabel = _currentPlayerLabel(this);
